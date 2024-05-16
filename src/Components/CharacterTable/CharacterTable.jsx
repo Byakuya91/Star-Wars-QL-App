@@ -8,14 +8,16 @@ import './CharacterTable.css';
 
 
 // ?Query imports 
-import { GET_STAR_WARS_NAMES } from '../Querries/StarWarsNames';
+import { GET_STAR_WARS_CHARACTERS } from '../Querries/StarWarsNames';
 
-import { GET_STAR_WARS_SPECIES_AND_WORLDS } from '../Querries/StarWarsSpeciesAndWorld';
 
-// TODOS:
+// TODOS:KEY TASKS
 // 1) Refactor query calls to include Home-world and species(DONE)
-// 2) Render out the data onto the table(ONGOING)
-// 1) Set the Stage for the filtering application of the table, based on NAME,SPECIES, and HOMEWORLD  
+// 2) Render out the data onto the table(DONE)
+// 1) Set the Stage for the filtering application of the table, based on NAME,SPECIES, and HOMEWORLD(ONGOING) 
+
+// TODOS: supplementary tasks
+// 1) 
 
 
 
@@ -26,14 +28,14 @@ const [showTable, setShowTable] = useState(false);
 
 
   //! Fetch data for Star Wars names 
-  const { loading: namesLoading, error: namesError, data:namesData } = useQuery(GET_STAR_WARS_NAMES, {
+  const { loading: charactersLoading, error: charactersError, data:charactersData } = useQuery(GET_STAR_WARS_CHARACTERS, {
     skip: !showTable // Skip the query if showTable is false
   });
 
-// ! Fetch Data for Star Wars Species and HomeWorld 
-  const { loading: speciesLoading, error: speciesError, data:speciesData } = useQuery(GET_STAR_WARS_SPECIES_AND_WORLDS, {
-    skip: !showTable // Skip the query if showTable is false
-  });
+// ! Fetch Data for Star Wars Species and HomeWorld ( NOT THE RIGHT QUERY)
+  // const { loading: speciesLoading, error: speciesError, data:speciesData } = useQuery(GET_STAR_WARS_SPECIES_AND_WORLDS, {
+  //   skip: !showTable // Skip the query if showTable is false
+  // });
 
 
   
@@ -61,11 +63,11 @@ const [showTable, setShowTable] = useState(false);
 
   // ? In case the data does NOT load for Names, Species and Homeworld
 
-  if (namesLoading || speciesLoading ) 
+  if (charactersLoading  ) 
     return <p>Loading...</p>;
 
-  if (namesError || speciesError) 
-    return <p>Error: {namesError.message ? namesError.message : speciesError.message}</p>;
+  if (charactersError) 
+    return <p>Error: {charactersError.message} </p>;
 
 
 
@@ -107,10 +109,12 @@ return (
           <tbody>
             {/* Map over the fetched data and display names */}
 
-            {namesData.allPeople.people.map((character, index) => (
+            {charactersData.allPeople.people.map((character, index) => (
               <tr key={index}>
                   <td> <b>{index + 1}</b></td> {/* Display the index starting from 1 */}
                 <td> <b>{character.name}</b></td>
+                <td><b>{character.species ? character.species.name : 'Unknown'}</b></td>
+                <td><b>{character.homeworld ? character.homeworld.name : 'Unknown'}</b></td>
               </tr>
             ))}
             {/* <td>{speciesData.allPeople.people}</td> */}
