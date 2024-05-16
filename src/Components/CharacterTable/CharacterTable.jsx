@@ -12,7 +12,10 @@ import { GET_STAR_WARS_NAMES } from '../Querries/StarWarsNames';
 
 import { GET_STAR_WARS_SPECIES_AND_WORLDS } from '../Querries/StarWarsSpeciesAndWorld';
 
-
+// TODOS:
+// 1) Refactor query calls to include Home-world and species(DONE)
+// 2) Render out the data onto the table(ONGOING)
+// 1) Set the Stage for the filtering application of the table, based on NAME,SPECIES, and HOMEWORLD  
 
 
 
@@ -22,13 +25,18 @@ const CharacterTable = () => {
 const [showTable, setShowTable] = useState(false);
 
 
-  //!  Fetch data using the defined query when showTable is true
-  const { loading, error, data } = useQuery(GET_STAR_WARS_NAMES, {
+  //! Fetch data for Star Wars names 
+  const { loading: namesLoading, error: namesError, data:namesData } = useQuery(GET_STAR_WARS_NAMES, {
+    skip: !showTable // Skip the query if showTable is false
+  });
+
+// ! Fetch Data for Star Wars Species and HomeWorld 
+  const { loading: speciesLoading, error: speciesError, data:speciesData } = useQuery(GET_STAR_WARS_SPECIES_AND_WORLDS, {
     skip: !showTable // Skip the query if showTable is false
   });
 
 
-  e
+  
   
 
   // ? Handler functions for buttons 
@@ -51,10 +59,15 @@ const [showTable, setShowTable] = useState(false);
   // Trying to make a tenary operation for the code
 //  showTable ? 
 
-  // ? In case the data does NOT load
+  // ? In case the data does NOT load for Names, Species and Homeworld
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {error.message}</p>;
+  if (namesLoading || speciesLoading ) 
+    return <p>Loading...</p>;
+
+  if (namesError || speciesError) 
+    return <p>Error: {namesError.message ? namesError.message : speciesError.message}</p>;
+
+
 
 // USING MOCK DATA to fill in the table and get a sense of what it looks like
 // const mockData = {
@@ -87,16 +100,20 @@ return (
             <tr>
             <th>No.</th>
               <th>Name</th>
+              <th>Species</th>
+              <th>Homeworld</th>
             </tr>
           </thead>
           <tbody>
             {/* Map over the fetched data and display names */}
-            {data.allPeople.people.map((character, index) => (
+
+            {namesData.allPeople.people.map((character, index) => (
               <tr key={index}>
                   <td> <b>{index + 1}</b></td> {/* Display the index starting from 1 */}
                 <td> <b>{character.name}</b></td>
               </tr>
             ))}
+            {/* <td>{speciesData.allPeople.people}</td> */}
           </tbody>
         </table>
       </div>
