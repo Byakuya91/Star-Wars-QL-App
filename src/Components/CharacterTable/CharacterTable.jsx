@@ -1,12 +1,16 @@
-
+// ?React imports 
 import React, { useState } from 'react';
 
+// ? Apollo and dependency imports 
 import { useQuery } from '@apollo/client';
 // ?CSS imports 
 import './CharacterTable.css';
 
 
+// ?Query imports 
 import { GET_STAR_WARS_NAMES } from '../Querries/StarWarsNames';
+
+import { GET_STAR_WARS_SPECIES_AND_WORLDS } from '../Querries/StarWarsSpeciesAndWorld';
 
 
 
@@ -22,6 +26,10 @@ const [showTable, setShowTable] = useState(false);
   const { loading, error, data } = useQuery(GET_STAR_WARS_NAMES, {
     skip: !showTable // Skip the query if showTable is false
   });
+
+
+  e
+  
 
   // ? Handler functions for buttons 
   const handleShowTableClick = () => {
