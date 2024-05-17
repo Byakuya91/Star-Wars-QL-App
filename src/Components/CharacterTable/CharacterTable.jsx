@@ -61,6 +61,39 @@ const [searchTerm, setSearchTerm] = useState('');
     setSearchTerm(e.target.value);
   };
 
+  // ! Create a function to handle the filtering of the table
+
+  // ? STEP ONE: create an array to be used as keys for the fields
+  const Star_Keys = ['name', 'species', 'homeworld'];
+
+// ?Testing the keys 
+// console.log(object);
+
+//TODO: Create a search function for the filtered results 
+const starSearch = (data) =>{
+  return data.filter(item =>
+  //  ? For each item, check if one of the Star_Keys contains the search term
+  Star_Keys.some((Star_key) => {
+  //  ? Split the keys to handle nested properties
+  const Star_Split_keys = Star_key.split('.');
+// ? Start with the current item
+  let  Star_value = item;
+// ? traverse the nested properties
+ Star_Split_keys.forEach(k => {
+    // ? Update the 'value' to the nested property value or null/undefined if it does NOT exist.
+    Star_value = Star_value && Star_value[k];
+ });
+  //  ? Check if the final value exists  and contains the searchTerm
+  return typeof Star_value === 'string' && Star_value.toLowerCase().includes(searchTerm.toLowerCase());
+
+  })
+
+  );
+};
+
+
+
+
   // OLD CODE 
   // if (!showTable) {
   //   return (
@@ -81,7 +114,8 @@ const [searchTerm, setSearchTerm] = useState('');
   if (charactersError) 
     return <p>Error: {charactersError.message} </p>;
 
-
+//!  Create the filtered data that will be used by the new Map
+const filteredStarWarsCharacters = charactersData && charactersData.allPeople && charactersData.allPeople.people ? starSearch(charactersData.allPeople.people) : [];
 
 // USING MOCK DATA to fill in the table and get a sense of what it looks like
 // const mockData = {
@@ -121,7 +155,7 @@ return (
           <tbody>
             {/* Map over the fetched data and display names */}
 
-            {charactersData.allPeople.people.map((character, index) => (
+            {filteredStarWarsCharacters.map((character, index) => (
               <tr key={index}>
                   <td> <b>{index + 1}</b></td> {/* Display the index starting from 1 */}
                 <td> <b>{character.name}</b></td>
