@@ -9,6 +9,7 @@ import './CharacterTable.css';
 
 // ?Query imports 
 import { GET_STAR_WARS_CHARACTERS } from '../Querries/StarWarsNames';
+import SearchBar from '../StarWarsSearchBar/SearchBar';
 
 
 // TODOS:KEY TASKS
@@ -17,14 +18,17 @@ import { GET_STAR_WARS_CHARACTERS } from '../Querries/StarWarsNames';
 // 1) Set the Stage for the filtering application of the table, based on NAME,SPECIES, and HOMEWORLD(ONGOING) 
 
 // TODOS: supplementary tasks
-// 1) 
+// 1) Theme and Dark theme toggler 
 
 
 
 const CharacterTable = () => {
 
-// ? Toggle state variables for the button 
+// ? Pieces of states
+// ? Toggling the table view
 const [showTable, setShowTable] = useState(false);
+// ? SearchBar results state
+const [searchTerm, setSearchTerm] = useState('');
 
 
   //! Fetch data for Star Wars names 
@@ -41,7 +45,9 @@ const [showTable, setShowTable] = useState(false);
   
   
 
-  // ? Handler functions for buttons 
+  // ? Handler functions
+
+  // ? Showing and hiding the table
   const handleShowTableClick = () => {
     setShowTable(true); // Set showTable to true when the button is clicked
   };
@@ -50,6 +56,12 @@ const [showTable, setShowTable] = useState(false);
     setShowTable(false); // Set showTable to false when the "Hide" button is clicked
   };
 
+  // ? Changing the search term 
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  // OLD CODE 
   // if (!showTable) {
   //   return (
   //     <div>
@@ -94,7 +106,7 @@ return (
   <div>
     {showTable ? (
       <div className='container'>
-          <div>Search bar placeholder</div>
+       <SearchBar searchTerm={searchTerm} handleSearchChange={handleSearchChange} />
         <button  className = "btn" 
         onClick={handleHideTableClick}>Hide Star Wars Characters</button>
         <table>
