@@ -13,7 +13,12 @@ import SearchBar from '../StarWarsSearchBar/SearchBar';
 // TODOS:KEY TASKS
 // 1) Refactor query calls to include Home-world and species(DONE)
 // 2) Render out the data onto the table(DONE)
-// 1) Set the Stage for the filtering application of the table, based on NAME,SPECIES, and HOMEWORLD(DONE) 
+// 3) Set the Stage for the filtering application of the table, based on NAME,SPECIES, and HOMEWORLD(DONE) 
+// 4) Update the data:
+// 4A) Create UpdateCharacters component 
+// 4B) Create a query to handle updating the data(DO RESEARCH)
+// 4C) Hook up the buttons 
+
 
 // TODOS: supplementary tasks
 // 1) Theme and Dark theme toggler(ONGOING)
