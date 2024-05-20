@@ -13,10 +13,10 @@ import SearchBar from '../StarWarsSearchBar/SearchBar';
 // TODOS:KEY TASKS
 // 1) Refactor query calls to include Home-world and species(DONE)
 // 2) Render out the data onto the table(DONE)
-// 1) Set the Stage for the filtering application of the table, based on NAME,SPECIES, and HOMEWORLD(ONGOING) 
+// 1) Set the Stage for the filtering application of the table, based on NAME,SPECIES, and HOMEWORLD(DONE) 
 
 // TODOS: supplementary tasks
-// 1) Theme and Dark theme toggler 
+// 1) Theme and Dark theme toggler(ONGOING)
 
 const CharacterTable = () => {
 //  ? Defining keys based on the fields for the table
@@ -126,6 +126,7 @@ const Star_keys = ['name', 'species.name', 'homeworld.name'];
                         <thead>
                             <tr>
                                 <th>No.</th>
+                                <th>Actions</th> {/* Add a new header for the Update button */}
                                 <th>Name</th>
                                 <th>Species</th>
                                 <th>Homeworld</th>
@@ -135,6 +136,10 @@ const Star_keys = ['name', 'species.name', 'homeworld.name'];
                             {filteredStarWarsCharacters.map((character, index) => (
                                 <tr key={index}>
                                     <td><b>{index + 1}</b></td> {/* Display the index starting from 1 */}
+                                    <td>
+                                      <button className='update-btn'>Update</button>
+                                      <button className='delete-btn'>Delete</button>
+                                    </td>
                                     <td><b>{character.name}</b></td>
                                     <td><b>{character.species ? character.species.name : 'Unknown'}</b></td>
                                     <td><b>{character.homeworld ? character.homeworld.name : 'Unknown'}</b></td>
