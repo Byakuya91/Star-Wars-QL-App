@@ -10,6 +10,9 @@ import './CharacterTable.css';
 import { GET_STAR_WARS_CHARACTERS } from '../Querries/StarWarsNames';
 import SearchBar from '../StarWarsSearchBar/SearchBar';
 
+// ! Component imports
+import UpdateStarWarsCharactersForm from '../UpdateStarWarsCharacters/UpdateStarWarsCharactersForm';
+
 // TODOS:KEY TASKS
 // 1) Refactor query calls to include Home-world and species(DONE)
 // 2) Render out the data onto the table(DONE)
@@ -33,13 +36,19 @@ const Star_keys = ['name', 'species.name', 'homeworld.name'];
     const [showTable, setShowTable] = useState(false);
     // ? SearchBar results state
     const [searchTerm, setSearchTerm] = useState('');
+    // ? visibility of the update character form 
+    const [showUpdateForm,setShowUpdateForm] = useState(false);
+    // ? Store the selected character for an update
+    const [selectedCharacter, setSelectedCharacter] = useState(null); 
+
+    // Use the useQuery hook to fetch data, skipping the query if showTable is false
 
     //! Fetch data for Star Wars names 
     const { loading: charactersLoading, error: charactersError, data: charactersData } = useQuery(GET_STAR_WARS_CHARACTERS, {
         skip: !showTable // Skip the query if showTable is false
     });
 
-    // ? Handler functions
+    // ! Handler functions
     // ? Showing and hiding the table
     const handleShowTableClick = () => {
         setShowTable(true); // Set showTable to true when the button is clicked
@@ -49,15 +58,24 @@ const Star_keys = ['name', 'species.name', 'homeworld.name'];
         setShowTable(false); // Set showTable to false when the "Hide" button is clicked
     };
 
-    // ? Changing the search term 
+    // ? Handler: Changing the search term 
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
     };
 
-    // ? Clear the searchBar
-    const clearSearchBar = () =>{
+    // ?Handler: Clear the searchBar
+    const handleClearSearchBar = () =>{
       setSearchTerm('');
     }
+
+    // ? Handler: Show the update form of a specific character(ONGOING)
+    const handleFormClose = () =>{
+        setShowUpdateForm(false);
+        setSelectedCharacter(null);
+    }
+      
+
+    // ?Handler
 
 // USING MOCK DATA to fill in the table and get a sense of what it looks like
 // const mockData = {
@@ -125,7 +143,7 @@ const Star_keys = ['name', 'species.name', 'homeworld.name'];
         <div>
             {showTable ? (
                 <div className='container'>
-                    <SearchBar searchTerm={searchTerm} handleSearchChange={handleSearchChange}  clearSearchBar = {clearSearchBar}/>
+                    <SearchBar searchTerm={searchTerm} handleSearchChange={handleSearchChange}  clearSearchBar = {handleClearSearchBar}/>
                     <button className="btn" onClick={handleHideTableClick}>Hide Star Wars Characters</button>
                     <table>
                         <thead>
@@ -135,6 +153,7 @@ const Star_keys = ['name', 'species.name', 'homeworld.name'];
                                 <th>Name</th>
                                 <th>Species</th>
                                 <th>Homeworld</th>
+                                {/* <th>id</th> */}
                             </tr>
                         </thead>
                         <tbody>
@@ -148,10 +167,14 @@ const Star_keys = ['name', 'species.name', 'homeworld.name'];
                                     <td><b>{character.name}</b></td>
                                     <td><b>{character.species ? character.species.name : 'Unknown'}</b></td>
                                     <td><b>{character.homeworld ? character.homeworld.name : 'Unknown'}</b></td>
+                                    {/* <td>{character.id}</td> */}
                                 </tr>
                             ))}
                         </tbody>
                     </table>
+                    <UpdateStarWarsCharactersForm  character={selectedCharacter}/>
+                     {/* Render the update form if showUpdateForm is true */}
+          {/* {showUpdateForm && <UpdateStarWarsCharactersForm character={selectedCharacter} onClose={handleFormClose} />} */}
                 </div>
             ) : (
                 <div>
