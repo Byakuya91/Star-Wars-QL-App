@@ -3,7 +3,7 @@ import React from 'react';
 import "../StarWarsSearchBar/SearchBar.css"
 
 const SearchBar = ({ searchTerm, handleSearchChange, clearSearchBar }) => {
-    console.log("The Search is: ", searchTerm);
+    // console.log("The Search is: ", searchTerm);
   return (
     <div className='search-bar'>
       <input

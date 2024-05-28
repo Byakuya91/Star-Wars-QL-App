@@ -68,14 +68,19 @@ const Star_keys = ['name', 'species.name', 'homeworld.name'];
       setSearchTerm('');
     }
 
-    // ? Handler: Show the update form of a specific character(ONGOING)
+// ? Handler: show the update form for a specific character 
+    const handleUpdateButtonClick =  (character)=>{
+        setSelectedCharacter(character);
+    setShowUpdateForm(true);
+
+    }
+
+    // ? Handler: Opening and closing the form
     const handleFormClose = () =>{
         setShowUpdateForm(false);
         setSelectedCharacter(null);
     }
       
-
-    // ?Handler
 
 // USING MOCK DATA to fill in the table and get a sense of what it looks like
 // const mockData = {
@@ -161,7 +166,7 @@ const Star_keys = ['name', 'species.name', 'homeworld.name'];
                                 <tr key={index}>
                                     <td><b>{index + 1}</b></td> {/* Display the index starting from 1 */}
                                     <td>
-                                      <button className='update-btn'>Update</button>
+                                      <button className='update-btn'  onClick={()=> handleUpdateButtonClick(character)}>Update</button>
                                       <button className='delete-btn'>Delete</button>
                                     </td>
                                     <td><b>{character.name}</b></td>
@@ -172,9 +177,9 @@ const Star_keys = ['name', 'species.name', 'homeworld.name'];
                             ))}
                         </tbody>
                     </table>
-                    <UpdateStarWarsCharactersForm  character={selectedCharacter}/>
+                    {/* <UpdateStarWarsCharactersForm  character={selectedCharacter}/> */}
                      {/* Render the update form if showUpdateForm is true */}
-          {/* {showUpdateForm && <UpdateStarWarsCharactersForm character={selectedCharacter} onClose={handleFormClose} />} */}
+          {showUpdateForm && <UpdateStarWarsCharactersForm character={selectedCharacter} onClose={handleFormClose} />}
                 </div>
             ) : (
                 <div>

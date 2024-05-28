@@ -6,6 +6,7 @@ import { gql } from "@apollo/client";
 export const UPDATE_CHARACTER = gql`
   mutation UpdateCharacter($name: String!, $speciesName: String!, $homeworldName: String!) {
     updateCharacter(name: $name, speciesName: $speciesName, homeworldName: $homeworldName) {
+      id
       name
       species {
         name
