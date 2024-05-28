@@ -22,7 +22,7 @@ const UpdateStarWarsCharactersForm = ({character, onUpdate, onClose}) => {
   const [updateCharacter] = useMutation(UPDATE_CHARACTER);
 
 
-// ! useEffect to initialize form fields based on character prop
+// ! useEffect hooks
   useEffect(() => {
     if (character) {
       setName(character.name || '');
@@ -30,6 +30,12 @@ const UpdateStarWarsCharactersForm = ({character, onUpdate, onClose}) => {
       setHomeworldName(character.homeworld ? character.homeworld.name : '');
     }
   }, [character]);
+
+  // ! Testing is the component is being rendered in the DOM
+  useEffect(() => {
+    console.log("UpdateStarWarsCharactersForm component rendered");
+  }, []); // The empty dependency array ensures the effect runs only once after initial render
+
 
 
 // ! Handle Submit function 
