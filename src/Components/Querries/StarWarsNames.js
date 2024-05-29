@@ -9,11 +9,9 @@ export const GET_STAR_WARS_CHARACTERS = gql`
         id
         name 
         species {
-          id
           name 
         }
         homeworld {
-          id
           name
         }
       }
