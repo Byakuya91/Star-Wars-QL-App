@@ -15,7 +15,7 @@ function App() {
   return (
     <ApolloProvider client={client}>
       <div>
-        <h1>Star Wars Characters</h1>
+        <h1>Star Wars Characters</h1> 
         <CharacterTable />
         <ToastContainer
          position="top-left"

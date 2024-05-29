@@ -19,7 +19,7 @@ const SearchBar = ({ searchTerm, handleSearchChange, clearSearchBar }) => {
         </button>
       )}
     </div>
-    
+       
   );
 };
 

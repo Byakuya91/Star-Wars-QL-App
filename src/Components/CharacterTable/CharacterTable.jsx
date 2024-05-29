@@ -12,6 +12,7 @@ import SearchBar from '../StarWarsSearchBar/SearchBar';
 
 // ! Component imports
 import UpdateStarWarsCharactersForm from '../UpdateStarWarsCharacters/UpdateStarWarsCharactersForm';
+import Modal from '../Modal/modal';
 
 // TODOS:KEY TASKS
 // 1) Refactor query calls to include Home-world and species(DONE)
@@ -150,6 +151,7 @@ const Star_keys = ['name', 'species.name', 'homeworld.name'];
 
     return (
         <div>
+            <Modal/>
             {showTable ? (
                 <div className='container'>
                     <SearchBar searchTerm={searchTerm} handleSearchChange={handleSearchChange}  clearSearchBar = {handleClearSearchBar}/>

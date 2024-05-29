@@ -14,7 +14,7 @@ export const GET_STAR_WARS_CHARACTERS = gql`
         homeworld {
           name
         }
-      }
+      }  
       
     }
   }
