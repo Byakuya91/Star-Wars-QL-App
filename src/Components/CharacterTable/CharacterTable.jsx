@@ -70,11 +70,11 @@ const Star_keys = ['name', 'species.name', 'homeworld.name'];
 
 // ? Handler: show the update form for a specific character 
     const handleUpdateButtonClick =  (character)=>{
-        console.log("The character is:", character);
+        // console.log("The character is:", character);
         setSelectedCharacter(character);
-        console.log("The state of show Update form is:",showUpdateForm);
+        // console.log("The state of show Update form is:",showUpdateForm);
     setShowUpdateForm(true);
-    console.log("The state of show Update form when the button is pushed is:", showUpdateForm);
+    // console.log("The state of show Update form when the button is pushed is:", showUpdateForm);
 
     }
 

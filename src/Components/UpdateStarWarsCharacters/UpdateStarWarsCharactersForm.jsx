@@ -16,24 +16,24 @@ const UpdateStarWarsCharactersForm = ({character, onUpdate, onClose}) => {
 // ? State variables to hold the form values
   //  ? character name 
   const [name, setName] = useState(character.name || '');
-  //  ? species Id 
-  const [speciesId, setSpeciesId] = useState(character.species ? character.species.id : ''); 
-  // ? // State for homeworld ID: '');
-  const [homeworldId, setHomeworldId] = useState(character.homeworld ? character.homeworld.id : ''); 
+  //  ? species name 
+  const [speciesName, setSpeciesName] = useState(character.species ? character.species.name : ''); 
+  // ? // State for homeworld name: '');
+  const [homeworldName, setHomeworldName] = useState(character.homeworld ? character.homeworld.name : '');
+ 
+  console.log("The species name is:", speciesName);
+  console.log("The homeworld name is:", homeworldName);
+  console.log("The full name is:", name);
 
-  //? Mutation hook to perform the updateCharacter mutation
+  // Mutation hook for updating character
   const [updateCharacter] = useMutation(UPDATE_CHARACTER);
 
-
-// ?Effect to update state when character prop changes
+  // Update state when character prop changes
   useEffect(() => {
     if (character) {
-      // Update name state
       setName(character.name || '');
-      // Update species ID state 
-      setSpeciesId(character.species ? character.species.id : ''); 
-      // Update homeworld ID state
-      setHomeworldId(character.homeworld ? character.homeworld.id : ''); 
+      setSpeciesName(character.species ? character.species.name : '');
+      setHomeworldName(character.homeworld ? character.homeworld.name : '');
     }
   }, [character]);
 
@@ -45,34 +45,31 @@ const UpdateStarWarsCharactersForm = ({character, onUpdate, onClose}) => {
   // }, []); // The empty dependency array ensures the effect runs only once after initial render
 
 
-//? Handle form submission
+// Handle form submission
 const handleSubmit = async (e) => {
   e.preventDefault();
-  // ! Seeing if the function is firing off
   console.log("Submitting update with variables:", {
     id: character.id,
     name,
-    speciesId: speciesId || null,
-    homeworldId: homeworldId || null,
+    speciesName,
+    homeworldName,
   });
   try {
-    // Execute updateCharacter mutation
     await updateCharacter({
       variables: {
         id: character.id,
         name,
-        speciesId: speciesId || null,
-        homeworldId: homeworldId || null,
+        speciesName: speciesName || null,
+        homeworldName: homeworldName || null,
       },
-      // Update Apollo Client cache after mutation
       update: (cache, { data: { updateCharacter } }) => {
         // Read existing data from cache
         const existingData = cache.readQuery({ query: GET_STAR_WARS_CHARACTERS });
-        // Map through existing characters to update the modified character
+        // Update character in the cache
         const updatedPeople = existingData.characters.map(person =>
           person.id === character.id ? updateCharacter : person
         );
-        // Write updated characters list back to cache
+        // Write updated data back to cache
         cache.writeQuery({
           query: GET_STAR_WARS_CHARACTERS,
           data: { characters: updatedPeople }
@@ -82,10 +79,10 @@ const handleSubmit = async (e) => {
     onClose(); // Close the form after successful update
   } catch (err) {
     console.error("Error updating character:", err); // Log error if mutation fails
+    console.error("GraphQL Errors:", err.graphQLErrors); // Log specific GraphQL errors
+      console.error("Network Errors:", err.networkError); // Log network errors
   }
 };
-
-
 
 return (
   <div className="modal">
@@ -95,12 +92,12 @@ return (
         <input value={name} onChange={(e) => setName(e.target.value)} required />
       </label>
       <label>
-        Species:
-        <input value={speciesId} onChange={(e) => setSpeciesId(e.target.value)} />
+        Species Name:
+        <input value={speciesName} onChange={(e) => setSpeciesName(e.target.value)} />
       </label>
       <label>
-        Homeworld ID:
-        <input value={homeworldId} onChange={(e) => setHomeworldId(e.target.value)} />
+        Homeworld Name:
+        <input value={homeworldName} onChange={(e) => setHomeworldName(e.target.value)} />
       </label>
       <button type="submit">Update</button>
       <button type="button" onClick={onClose}>Cancel</button>
@@ -109,6 +106,6 @@ return (
 );
 };
 
-
-
 export default UpdateStarWarsCharactersForm;
+
+
