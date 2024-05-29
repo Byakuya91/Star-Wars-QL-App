@@ -4,18 +4,20 @@ import { gql } from "@apollo/client";
 // src/Queries/UpdateCharacterMutation.js
 
 export const UPDATE_CHARACTER = gql`
-  mutation UpdateCharacter($name: String!, $speciesName: String!, $homeworldName: String!) {
-    updateCharacter(name: $name, speciesName: $speciesName, homeworldName: $homeworldName) {
+  mutation UpdateCharacter($id: ID!, $name: String!, $speciesId: ID, $homeworldId: ID) {
+  updateCharacter(id: $id, name: $name, speciesId: $speciesId, homeworldId: $homeworldId) {
+    id
+    name
+    species {
       id
       name
-      species {
-        name
-      }
-      homeworld {
-        name
-      }
+    }
+    homeworld {
+      id
+      name
     }
   }
+}
 `;
 
 
