@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
 
-// ? third party imports
+// ? third party & query imports
 import { useApolloClient, useMutation } from '@apollo/client';
 import { UPDATE_CHARACTER } from "../Querries/UpdateStarWarsData";
 import { GET_STAR_WARS_CHARACTERS } from "../Querries/StarWarsNames";
-
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 // !TODO: Code out the form. 
 const UpdateStarWarsCharactersForm = ({character, onUpdate, onClose}) => {
 // TODO:
@@ -167,9 +168,13 @@ const handleSubmit = async (e) => {
     });
 
     console.log("Cache after update:", client.readQuery({ query: GET_STAR_WARS_CHARACTERS }));
+    // ? Toasted notifications firing off 
+    toast.success("Character updated successfully!");
     onClose(); // Close the form after successful update
   } catch (err) {
     console.error("Error updating cache:", err);
+    // ? Toasted notifications firing off 
+    toast.error("Error updating character!");
   }
 };
 
