@@ -1,29 +1,33 @@
 import React, { useEffect, useState } from "react";
 
 // ? third party & query imports
-import { useApolloClient, useMutation } from '@apollo/client';
+import { useApolloClient, useMutation } from "@apollo/client";
 import { UPDATE_CHARACTER } from "../Querries/UpdateStarWarsData";
 import { GET_STAR_WARS_CHARACTERS } from "../Querries/StarWarsNames";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-// !TODO: Code out the form. 
-const UpdateStarWarsCharactersForm = ({character, onUpdate, onClose}) => {
-// TODO:
-// 1) build the HMTL form and comment it to avoid causing an error(DONE)
-// 2) Code out the pieces of state within the form to correspond to the inputs(DONE)
-// 3) make sure to implement  the useMutation hook to see how it work(ONGOING)
-// 4) code out the submit function for a form.
+// !TODO: Code out the form.
+const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
+  // TODO:
+  // 1) build the HMTL form and comment it to avoid causing an error(DONE)
+  // 2) Code out the pieces of state within the form to correspond to the inputs(DONE)
+  // 3) make sure to implement  the useMutation hook to see how it work(ONGOING)
+  // 4) code out the submit function for a form.
 
-// ? State variables to hold the form values
-  //  ? character name 
-  const [name, setName] = useState(character.name || '');
-  //  ? species name 
-  const [speciesName, setSpeciesName] = useState(character.species ? character.species.name : ''); 
+  // ? State variables to hold the form values
+  //  ? character name
+  const [name, setName] = useState(character.name || "");
+  //  ? species name
+  const [speciesName, setSpeciesName] = useState(
+    character.species ? character.species.name : ""
+  );
   // ? // State for homeworld name: '');
-  const [homeworldName, setHomeworldName] = useState(character.homeworld ? character.homeworld.name : '');
+  const [homeworldName, setHomeworldName] = useState(
+    character.homeworld ? character.homeworld.name : ""
+  );
 
   const client = useApolloClient();
- 
+
   // console.log("The species name is:", speciesName);
   // console.log("The homeworld name is:", homeworldName);
   // console.log("The full name is:", name);
@@ -34,172 +38,208 @@ const UpdateStarWarsCharactersForm = ({character, onUpdate, onClose}) => {
   // Update state when character prop changes
   useEffect(() => {
     if (character) {
-      setName(character.name || '');
-      setSpeciesName(character.species ? character.species.name : '');
-      setHomeworldName(character.homeworld ? character.homeworld.name : '');
+      setName(character.name || "");
+      setSpeciesName(character.species ? character.species.name : "");
+      setHomeworldName(character.homeworld ? character.homeworld.name : "");
     }
   }, [character]);
 
-
-// ! debugging code 
+  // ! debugging code
   // // ! Testing is the component is being rendered in the DOM
   // useEffect(() => {
   //   console.log("UpdateStarWarsCharactersForm component rendered");
   // }, []); // The empty dependency array ensures the effect runs only once after initial render
 
+  //! Handle form submission(FIRST TAKE DOES NOT WORK)
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   console.log("Submitting update with variables:", {
+  //     id: character.id,
+  //     name,
+  //     speciesName,
+  //     homeworldName,
+  //   });
+  //   try {
+  //     await updateCharacter({
+  //       variables: {
+  //         id: character.id,
+  //         name,
+  //         speciesName: speciesName || null,
+  //         homeworldName: homeworldName || null,
+  //       },
+  //       update: (cache, { data: { updateCharacter } }) => {
+  //         // Read existing data from cache
+  //         const existingData = cache.readQuery({ query: GET_STAR_WARS_CHARACTERS });
+  //         // Update character in the cache
+  //         const updatedPeople = existingData.characters.map(person =>
+  //           person.id === character.id ? updateCharacter : person
+  //         );
+  //         // Write updated data back to cache
+  //         cache.writeQuery({
+  //           query: GET_STAR_WARS_CHARACTERS,
+  //           data: { characters: updatedPeople }
+  //         });
+  //       }
+  //     });
+  //     onClose(); // Close the form after successful update
+  //   } catch (err) {
+  //     console.error("Error updating character:", err); // Log error if mutation fails
+  //     console.error("GraphQL Errors:", err.graphQLErrors); // Log specific GraphQL errors
+  //       console.error("Network Errors:", err.networkError); // Log network errors
+  //   }
+  // };
 
-//! Handle form submission(FIRST TAKE DOES NOT WORK)
-// const handleSubmit = async (e) => {
-//   e.preventDefault();
-//   console.log("Submitting update with variables:", {
-//     id: character.id,
-//     name,
-//     speciesName,
-//     homeworldName,
-//   });
-//   try {
-//     await updateCharacter({
-//       variables: {
-//         id: character.id,
-//         name,
-//         speciesName: speciesName || null,
-//         homeworldName: homeworldName || null,
-//       },
-//       update: (cache, { data: { updateCharacter } }) => {
-//         // Read existing data from cache
-//         const existingData = cache.readQuery({ query: GET_STAR_WARS_CHARACTERS });
-//         // Update character in the cache
-//         const updatedPeople = existingData.characters.map(person =>
-//           person.id === character.id ? updateCharacter : person
-//         );
-//         // Write updated data back to cache
-//         cache.writeQuery({
-//           query: GET_STAR_WARS_CHARACTERS,
-//           data: { characters: updatedPeople }
-//         });
-//       }
-//     });
-//     onClose(); // Close the form after successful update
-//   } catch (err) {
-//     console.error("Error updating character:", err); // Log error if mutation fails
-//     console.error("GraphQL Errors:", err.graphQLErrors); // Log specific GraphQL errors
-//       console.error("Network Errors:", err.networkError); // Log network errors
-//   }
-// };
+  // ! Second version with local caching.
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   console.log("Submitting update with variables:", {
+  //     id: character.id,
+  //     name,
+  //     speciesName,
+  //     homeworldName,
+  //   });
 
-// ! Second version with local caching.
-// const handleSubmit = async (e) => {
-//   e.preventDefault();
-//   console.log("Submitting update with variables:", {
-//     id: character.id,
-//     name,
-//     speciesName,
-//     homeworldName,
-//   });
+  //   try {
+  //     // Perform the update
+  //     await updateCharacter({
+  //       variables: {
+  //         id: character.id,
+  //         name,
+  //         speciesName: speciesName || null,
+  //         homeworldName: homeworldName || null,
+  //       },
+  //     });
 
-//   try {
-//     // Perform the update
-//     await updateCharacter({
-//       variables: {
-//         id: character.id,
-//         name,
-//         speciesName: speciesName || null,
-//         homeworldName: homeworldName || null,
-//       },
-//     });
+  //     // Read existing data from cache
+  //     const existingData = client.readQuery({ query: GET_STAR_WARS_CHARACTERS });
 
-//     // Read existing data from cache
-//     const existingData = client.readQuery({ query: GET_STAR_WARS_CHARACTERS });
+  //     // Ensure existingData is valid and an array
+  //     if (existingData && existingData.characters) {
+  //       const updatedStarWarsPeople = existingData.characters.map(person =>
+  //         person.id === character.id
+  //           ? { ...person, name, species: { name: speciesName }, homeworld: { name: homeworldName } }
+  //           : person
+  //       );
 
-//     // Ensure existingData is valid and an array
-//     if (existingData && existingData.characters) {
-//       const updatedStarWarsPeople = existingData.characters.map(person =>
-//         person.id === character.id
-//           ? { ...person, name, species: { name: speciesName }, homeworld: { name: homeworldName } }
-//           : person
-//       );
+  //       // Write updated data back to cache
+  //       client.writeQuery({
+  //         query: GET_STAR_WARS_CHARACTERS,
+  //         data: { characters: updatedStarWarsPeople },
+  //       });
 
-//       // Write updated data back to cache
-//       client.writeQuery({
-//         query: GET_STAR_WARS_CHARACTERS,
-//         data: { characters: updatedStarWarsPeople },
-//       });
+  //       console.log("Cache after update:", client.readQuery({ query: GET_STAR_WARS_CHARACTERS }));
+  //       onClose(); // Close the form after successful update
+  //     } else {
+  //       console.error("Error: existingData.characters is not an array");
+  //     }
+  //   } catch (err) {
+  //     console.error("Error updating character:", err); // Log error if mutation fails
+  //     console.error("GraphQL Errors:", err.graphQLErrors); // Log specific GraphQL errors
+  //     console.error("Network Errors:", err.networkError); // Log network errors
+  //   }
+  // };
 
-//       console.log("Cache after update:", client.readQuery({ query: GET_STAR_WARS_CHARACTERS }));
-//       onClose(); // Close the form after successful update
-//     } else {
-//       console.error("Error: existingData.characters is not an array");
-//     }
-//   } catch (err) {
-//     console.error("Error updating character:", err); // Log error if mutation fails
-//     console.error("GraphQL Errors:", err.graphQLErrors); // Log specific GraphQL errors
-//     console.error("Network Errors:", err.networkError); // Log network errors
-//   }
-// };
+  // ! Third iteration
+  const handleSubmit = async (e) => {
+    // Prevent the default form submission behavior
+    e.preventDefault();
 
-// ! Third iteration
-const handleSubmit = async (e) => {
-  e.preventDefault();
-  console.log("Updating cache with variables:", {
-    id: character.id,
-    name,
-    speciesName,
-    homeworldName,
-  });
-
-  try {
-    const existingData = client.readQuery({ query: GET_STAR_WARS_CHARACTERS });
-    console.log("Existing data from cache:", existingData); // Log existing data to understand its structure
-
-    // ? checking if the data exists or not
-    if (!existingData || !existingData.allPeople || !existingData.allPeople.people) {
-      throw new Error("Error: existingData.allPeople.people is not defined");
-    }
-
-    const updatedPeople = existingData.allPeople.people.map(person =>
-      person.id === character.id
-        ? { ...person, name, species: { name: speciesName }, homeworld: { name: homeworldName } }
-        : person
-    );
-
-    client.writeQuery({
-      query: GET_STAR_WARS_CHARACTERS,
-      data: { allPeople: { ...existingData.allPeople, people: updatedPeople } },
+    // Log the variables being used for the update
+    console.log("Updating cache with variables:", {
+      id: character.id,
+      name,
+      speciesName,
+      homeworldName,
     });
 
-    console.log("Cache after update:", client.readQuery({ query: GET_STAR_WARS_CHARACTERS }));
-    // ? Toasted notifications firing off 
-    toast.success("Character updated successfully!");
-    onClose(); // Close the form after successful update
-  } catch (err) {
-    console.error("Error updating cache:", err);
-    // ? Toasted notifications firing off 
-    toast.error("Error updating character!");
-  }
-};
+    try {
+      // Read the existing data from the Apollo Client cache
+      const existingData = client.readQuery({
+        query: GET_STAR_WARS_CHARACTERS,
+      });
+      // Log the existing data to understand its structure
+      console.log("Existing data from cache:", existingData);
 
-return (
-  <div className="modal">
-    <form onSubmit={handleSubmit}>
-      <label>
-        Name:
-        <input value={name} onChange={(e) => setName(e.target.value)} required />
-      </label>
-      <label>
-        Species Name:
-        <input value={speciesName} onChange={(e) => setSpeciesName(e.target.value)} />
-      </label>
-      <label>
-        Homeworld Name:
-        <input value={homeworldName} onChange={(e) => setHomeworldName(e.target.value)} />
-      </label>
-      <button type="submit">Update</button>
-      <button type="button" onClick={onClose}>Cancel</button>
-    </form>
-  </div>
-);
+      // Check if the data exists in the cache and has the expected structure
+      if (
+        !existingData ||
+        !existingData.allPeople ||
+        !existingData.allPeople.people
+      ) {
+        throw new Error("Error: existingData.allPeople.people is not defined");
+      }
+
+      // Map through the existing characters and update the one that matches the character.id
+      const updatedPeople = existingData.allPeople.people.map((person) =>
+        person.id === character.id
+          ? {
+              ...person,
+              name, // Update name
+              species: { name: speciesName }, // Update species name
+              homeworld: { name: homeworldName }, // Update homeworld name
+            }
+          : person
+      );
+
+      // Write the updated data back to the Apollo Client cache
+      client.writeQuery({
+        query: GET_STAR_WARS_CHARACTERS,
+        data: {
+          allPeople: { ...existingData.allPeople, people: updatedPeople },
+        },
+      });
+
+      // Log the cache after the update to verify the changes
+      console.log(
+        "Cache after update:",
+        client.readQuery({ query: GET_STAR_WARS_CHARACTERS })
+      );
+
+      // Show a success notification
+      toast.success("Character updated successfully!");
+      // Close the form after a successful update
+      onClose();
+    } catch (err) {
+      // Log any errors that occur during the update process
+      console.error("Error updating cache:", err);
+      // Show an error notification
+      toast.error("Error updating character!");
+    }
+  };
+
+  return (
+    <div className="modal">
+      <form onSubmit={handleSubmit}>
+        <label htmlFor="fullNameInput">
+          Name:
+          <input
+            id="fullNameInput"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+        </label>
+        <label>
+          Species Name:
+          <input
+            value={speciesName}
+            onChange={(e) => setSpeciesName(e.target.value)}
+          />
+        </label>
+        <label>
+          Homeworld Name:
+          <input
+            value={homeworldName}
+            onChange={(e) => setHomeworldName(e.target.value)}
+          />
+        </label>
+        <button type="submit">Update</button>
+        <button type="button" onClick={onClose}>
+          Cancel
+        </button>
+      </form>
+    </div>
+  );
 };
 
 export default UpdateStarWarsCharactersForm;
-
-
