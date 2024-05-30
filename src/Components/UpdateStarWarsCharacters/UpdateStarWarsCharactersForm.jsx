@@ -208,7 +208,7 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
   };
 
   return (
-    <div className="modal">
+    <div>
       <form onSubmit={handleSubmit}>
         <label htmlFor="fullNameInput">
           Name:
