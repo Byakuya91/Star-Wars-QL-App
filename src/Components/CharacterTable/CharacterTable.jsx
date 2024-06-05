@@ -47,6 +47,7 @@ const CharacterTable = () => {
     loading: charactersLoading,
     error: charactersError,
     data: charactersData,
+    refetch,
   } = useQuery(GET_STAR_WARS_CHARACTERS, {
     skip: !showTable, // Skip the query if showTable is false
   });
@@ -83,7 +84,6 @@ const CharacterTable = () => {
   // ? Handler: Opening and closing the form
   const handleFormClose = () => {
     setShowUpdateForm(false);
-
     setSelectedCharacter(null);
   };
 

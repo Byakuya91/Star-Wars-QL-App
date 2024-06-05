@@ -141,11 +141,9 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
 
   // ! Third iteration
   const handleSubmit = async (e) => {
-    // Prevent the default form submission behavior
     e.preventDefault();
 
-    // Log the variables being used for the update
-    console.log("Updating cache with variables:", {
+    console.log("Updating the cache with variables:", {
       id: character.id,
       name,
       speciesName,
@@ -157,7 +155,6 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
       const existingData = client.readQuery({
         query: GET_STAR_WARS_CHARACTERS,
       });
-      // Log the existing data to understand its structure
       console.log("Existing data from cache:", existingData);
 
       // Check if the data exists in the cache and has the expected structure
@@ -174,9 +171,9 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
         person.id === character.id
           ? {
               ...person,
-              name, // Update name
-              species: { name: speciesName }, // Update species name
-              homeworld: { name: homeworldName }, // Update homeworld name
+              name,
+              species: { name: speciesName },
+              homeworld: { name: homeworldName },
             }
           : person
       );
@@ -189,22 +186,35 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
         },
       });
 
-      // Log the cache after the update to verify the changes
-      console.log(
-        "Cache after update:",
-        client.readQuery({ query: GET_STAR_WARS_CHARACTERS })
-      );
-
       // Show a success notification
       toast.success("Character updated successfully!");
       // Close the form after a successful update
       onClose();
     } catch (err) {
-      // Log any errors that occur during the update process
       console.error("Error updating cache:", err);
-      // Show an error notification
       toast.error("Error updating character!");
     }
+
+    // ? updating the cache locally and avoiding the component calling the API to revert the changes.
+    // ! SWAPI does NOT support mutations
+    useEffect(() => {
+      // This function will be called whenever a 'storage' event is triggered
+      const syncLocalStorageChanges = (event) => {
+        // Check if the local storage key that triggered the event is 'yourLocalStorageKey'
+        if (event.key === "yourLocalStorageKey") {
+          // Reload the window to update the UI with the latest data from local storage
+          window.location.reload();
+        }
+      };
+
+      // Add an event listener for the 'storage' event to detect changes in local storage
+      window.addEventListener("storage", syncLocalStorageChanges);
+
+      // Cleanup function to remove the event listener when the component unmounts
+      return () => {
+        window.removeEventListener("storage", syncLocalStorageChanges);
+      };
+    }, []);
   };
 
   return (
