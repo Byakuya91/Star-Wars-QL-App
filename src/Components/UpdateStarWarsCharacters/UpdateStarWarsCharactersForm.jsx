@@ -197,24 +197,24 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
 
     // ? updating the cache locally and avoiding the component calling the API to revert the changes.
     // ! SWAPI does NOT support mutations
-    useEffect(() => {
-      // This function will be called whenever a 'storage' event is triggered
-      const syncLocalStorageChanges = (event) => {
-        // Check if the local storage key that triggered the event is 'yourLocalStorageKey'
-        if (event.key === "yourLocalStorageKey") {
-          // Reload the window to update the UI with the latest data from local storage
-          window.location.reload();
-        }
-      };
+    // useEffect(() => {
+    //   // This function will be called whenever a 'storage' event is triggered
+    //   const syncLocalStorageChanges = (event) => {
+    //     // Check if the local storage key that triggered the event is 'yourLocalStorageKey'
+    //     if (event.key === "yourLocalStorageKey") {
+    //       // Reload the window to update the UI with the latest data from local storage
+    //       window.location.reload();
+    //     }
+    //   };
 
-      // Add an event listener for the 'storage' event to detect changes in local storage
-      window.addEventListener("storage", syncLocalStorageChanges);
+    //   // Add an event listener for the 'storage' event to detect changes in local storage
+    //   window.addEventListener("storage", syncLocalStorageChanges);
 
-      // Cleanup function to remove the event listener when the component unmounts
-      return () => {
-        window.removeEventListener("storage", syncLocalStorageChanges);
-      };
-    }, []);
+    //   // Cleanup function to remove the event listener when the component unmounts
+    //   return () => {
+    //     window.removeEventListener("storage", syncLocalStorageChanges);
+    //   };
+    // }, []);
   };
 
   return (

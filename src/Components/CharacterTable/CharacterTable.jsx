@@ -50,6 +50,7 @@ const CharacterTable = () => {
     refetch,
   } = useQuery(GET_STAR_WARS_CHARACTERS, {
     skip: !showTable, // Skip the query if showTable is false
+    //  ?Attempting to solve stale cache
   });
 
   // ! Handler functions
