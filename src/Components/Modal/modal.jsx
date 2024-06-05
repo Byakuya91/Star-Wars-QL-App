@@ -10,9 +10,7 @@ import "../Modal/modal.css";
 // 4) CSS styles for the modal to get it out(display component on screen to see the styles and edit them)
 // 3) CSS styles for the modal to get it out(display component on screen to see the styles and edit them)
 
-/
 const Modal = ({ children, isOpen, onClose }) => {
-
   // Close the modal when clicking outside the modal content
   // const handleBackdropClick = (e) => {
   //   if (e.target === e.currentTarget) {

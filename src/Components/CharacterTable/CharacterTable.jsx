@@ -170,7 +170,7 @@ const CharacterTable = () => {
               onClose={handleFormClose}
             />
           )}
-          <table>
+          <table className="table-container">
             <thead>
               <tr>
                 <th>No.</th>
