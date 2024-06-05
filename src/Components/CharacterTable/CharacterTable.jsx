@@ -9,6 +9,11 @@ import "./CharacterTable.css";
 // ?Query imports
 import { GET_STAR_WARS_CHARACTERS } from "../Querries/StarWarsNames";
 import SearchBar from "../StarWarsSearchBar/SearchBar";
+import { useApolloClient } from "@apollo/client";
+
+// ? Third party imports
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 // ! Component imports
 import UpdateStarWarsCharactersForm from "../UpdateStarWarsCharacters/UpdateStarWarsCharactersForm";
@@ -73,7 +78,8 @@ const CharacterTable = () => {
     setSearchTerm("");
   };
 
-  // ? Handler: show the update form for a specific character
+  // ! Handlers for CRUD operations for the table
+  // ? Handler: show the update form
   const handleUpdateButtonClick = (character) => {
     // console.log("The character is:", character);
     setSelectedCharacter(character);
@@ -86,6 +92,47 @@ const CharacterTable = () => {
   const handleFormClose = () => {
     setShowUpdateForm(false);
     setSelectedCharacter(null);
+  };
+
+  // Inside the functional component
+  const client = useApolloClient();
+
+  // ? Handling the deletion of a character.
+  const handleDeleteCharacter = (character) => {
+    //? Testing the button if it works(IT WORKS)
+    // console.log("Deleting character:", character);
+
+    //? STEP ONE: remove the character from local state or cache
+    const updatedCharacters = charactersData.allPeople.people.filter(
+      (char) => char.id !== character.id
+    );
+    // ! FIRST ATTEMPT FAILED
+    // ?STEP TWO: Create a new object with the updated people array(DOES NOT WORK. "People" is read Only)
+    // Create a new object with updated people array
+    // const updatedAllPeople = {
+    //   ...charactersData.allPeople,
+    //   people: updatedCharacters,
+    // };
+
+    // ?STEP THREE: Update charactersData with the filtered list of characters(DOES NOT WORK. "People" is read only.)
+    // You can directly modify the charactersData state variable to update the list of characters
+    // charactersData.allPeople.people = updatedAllPeople;
+    //? STEP TWO Update the cache with the updated data
+    // My first step does NOT WORK
+
+    // ! //(WORKING) Update the cache with the updated data
+    client.writeQuery({
+      query: GET_STAR_WARS_CHARACTERS, // The query used to fetch the data
+      data: {
+        allPeople: {
+          ...charactersData.allPeople,
+          people: updatedCharacters,
+        },
+      },
+    });
+
+    // ? Alerting  the user that the character is deleted.
+    toast.error("Character successfully deleted!");
   };
 
   // USING MOCK DATA to fill in the table and get a sense of what it looks like
@@ -196,7 +243,12 @@ const CharacterTable = () => {
                     >
                       Update
                     </button>
-                    <button className="delete-btn">Delete</button>
+                    <button
+                      className="delete-btn"
+                      onClick={() => handleDeleteCharacter(character)}
+                    >
+                      Delete
+                    </button>
                   </td>
                   <td>
                     <b>{character.name}</b>
