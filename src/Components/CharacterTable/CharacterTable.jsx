@@ -31,6 +31,8 @@ import Modal from "../Modal/modal";
 // TODOS: supplementary tasks
 // 1) Theme and Dark theme toggler(ONGOING)
 
+// This is a new update
+
 const CharacterTable = () => {
   //  ? Defining keys based on the fields for the table
   const Star_keys = ["name", "species.name", "homeworld.name"];

@@ -2,23 +2,31 @@ import { gql } from "@apollo/client";
 
 // ! TODO: Work on implementing a query for Updating the StarWarsData
 // src/Queries/UpdateCharacterMutation.js
+// New update
 
 export const UPDATE_CHARACTER = gql`
-  mutation UpdateCharacter($id: ID!, $name: String!, $speciesName: String, $homeworldName: String) {
-  updateCharacter(id: $id, name: $name, speciesName: $speciesName, homeworldName: $homeworldName) {
-    id
-    name
-    species {
+  mutation UpdateCharacter(
+    $id: ID!
+    $name: String!
+    $speciesName: String
+    $homeworldName: String
+  ) {
+    updateCharacter(
+      id: $id
+      name: $name
+      speciesName: $speciesName
+      homeworldName: $homeworldName
+    ) {
       id
       name
-    }
-    homeworld {
-      id
-      name
+      species {
+        id
+        name
+      }
+      homeworld {
+        id
+        name
+      }
     }
   }
-}
-
 `;
-
-

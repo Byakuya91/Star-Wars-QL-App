@@ -26,6 +26,8 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
     character.homeworld ? character.homeworld.name : ""
   );
 
+  // New update for git push
+
   const client = useApolloClient();
 
   // console.log("The species name is:", speciesName);

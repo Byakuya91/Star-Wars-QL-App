@@ -9,6 +9,7 @@ const client = new ApolloClient({
   uri: "https://swapi-graphql.netlify.app/.netlify/functions/index/graphql",
   cache: new InMemoryCache(),
 });
+// New update
 
 function App() {
   return (
