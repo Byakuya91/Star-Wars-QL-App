@@ -2,7 +2,7 @@ import React from "react";
 import { ApolloProvider, ApolloClient, InMemoryCache } from "@apollo/client";
 import CharacterTable from "./Components/CharacterTable/CharacterTable";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+// import "react-toastify/dist/ReactToastify.css";
 
 // Initialize Apollo Client
 const client = new ApolloClient({

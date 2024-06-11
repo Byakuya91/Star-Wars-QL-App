@@ -5,7 +5,7 @@ import { useApolloClient, useMutation } from "@apollo/client";
 import { UPDATE_CHARACTER } from "../Querries/UpdateStarWarsData";
 import { GET_STAR_WARS_CHARACTERS } from "../Querries/StarWarsNames";
 import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+// import "react-toastify/dist/ReactToastify.css";
 // !TODO: Code out the form.
 const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
   // TODO:
