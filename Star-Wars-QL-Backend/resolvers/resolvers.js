@@ -1,6 +1,7 @@
 // TODO: Setup the resolvers to display the data I have(DONE)
-// 1) Set up resolver to ADD a Star Wars character name, species and homeworld.
-// 2) Set up resolver to DELETE a Star Wars character name, species and homeworld.
+// 1) Set up resolver to ADD a Star Wars character name, species and homeworld.(DONE)
+// ADDENDUM, Integrate a way to have ids be more naturally generated based on seeded data
+// 2) Set up resolver to DELETE a Star Wars character name, species and homeworld.(DONE)
 // 3) Set up resolver to EDIT a Star Wars character name, species and homeworld.
 
 // ?OTHER FILE IMPORTS
@@ -16,6 +17,8 @@ const resolvers = {
   Mutation: {
     //TODO: ADD a new character(full name, species and homeworld)
     // STEP ONE: define the resolver inside the mutation
+
+    // ?CODE FOR ADD character
     addCharacter: (_, { name, species, homeworld }) => {
       // Generate a unique ID for the new character
       const newCharacter = { id: uuidv4(), name, species, homeworld };
@@ -25,6 +28,19 @@ const resolvers = {
 
       // Return the newly added character
       return newCharacter;
+    },
+    deleteCharacter: (_, { id }) => {
+      // Find the index of the character to be deleted
+      const characterIndex = characters.findIndex((char) => char.id === id);
+
+      // If character found, remove it from the list and return it
+      if (characterIndex > -1) {
+        const deletedCharacter = characters.splice(characterIndex, 1);
+        return deletedCharacter[0];
+      }
+
+      // If character not found, return null
+      return null;
     },
   },
 };
