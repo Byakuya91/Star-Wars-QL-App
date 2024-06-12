@@ -1,6 +1,10 @@
 // ?Third party imports
 const { ApolloServer, gql } = require("apollo-server");
 
+// ?File imports
+const typeDefs = require("./Schemas/characterSchema");
+const resolvers = require("./resolvers/resolvers.js");
+
 // TODO list:
 // 1) Setup the server using Apollo server and test it(ONGOING).
 // 2) Create the mock data(ONGOING).
