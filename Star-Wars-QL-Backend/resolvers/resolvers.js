@@ -29,6 +29,7 @@ const resolvers = {
       // Return the newly added character
       return newCharacter;
     },
+    // ? CODE for DELETING a character
     deleteCharacter: (_, { id }) => {
       // Find the index of the character to be deleted
       const characterIndex = characters.findIndex((char) => char.id === id);
@@ -40,6 +41,24 @@ const resolvers = {
       }
 
       // If character not found, return null
+      return null;
+    },
+    //    ?CODE for UPDATING A CHARACTER
+    updateCharacter: (_, { id, name, species, homeworld }) => {
+      // STEP ONE: find the character
+      const singleCharacter = characters.find((char) => char.id === id);
+
+      // STEP TWO: if found, update the information
+      if (singleCharacter) {
+        singleCharacter.name = name || singleCharacter.name;
+        singleCharacter.species = species || singleCharacter.species;
+        singleCharacter.homeworld = homeworld || singleCharacter.homeworld;
+
+        // return the character
+        return singleCharacter;
+      }
+
+      // STEP THREE: if we CANNOT find the character
       return null;
     },
   },

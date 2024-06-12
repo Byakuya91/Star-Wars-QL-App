@@ -20,7 +20,12 @@ const typeDefs = gql`
     addCharacter(name: String!, species: String, homeworld: String): Character
     #! IMPORTANT: need to code out the delete and update FIRST
     deleteCharacter(id: ID!): Character
-    # updateCharacter(id: ID!, name: String, species: String, homeworld: String): Character
+    updateCharacter(
+      id: ID!
+      name: String
+      species: String
+      homeworld: String
+    ): Character
   }
 `;
 
