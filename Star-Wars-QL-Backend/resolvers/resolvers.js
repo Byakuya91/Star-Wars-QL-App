@@ -33,7 +33,6 @@ const resolvers = {
     deleteCharacter: (_, { id }) => {
       // Find the index of the character to be deleted
       const characterIndex = characters.findIndex((char) => char.id === id);
-
       // If character found, remove it from the list and return it
       if (characterIndex > -1) {
         const deletedCharacter = characters.splice(characterIndex, 1);
