@@ -1,5 +1,6 @@
 import React from "react";
 // ? CSS imports
+// import "../StarWarsSearchBar/SearchBar.css";
 import "../StarWarsSearchBar/SearchBar.css";
 
 // New update

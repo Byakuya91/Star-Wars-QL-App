@@ -3,8 +3,15 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom"; // Extends Jest's expect assertions with custom matchers for DOM nodes
 import SearchBar from "./SearchBar"; // Import the SearchBar component to be tested
 
+//! Mock the CSS import before importing the component
+jest.mock("../StarWarsSearchBar/SearchBar.css", () => ({
+  // Mocking the CSS module
+  __esModule: true,
+  default: "mocked-search-bar-css", // or an empty object, depending on your use case
+}));
+
 // Define a test case for the SearchBar component
-testEnvironment("renders search bar and clears input", () => {
+test("renders search bar and clears input", () => {
   // Create mock functions to pass as props to the SearchBar component
   const handleSearchChange = jest.fn();
   const clearSearchBar = jest.fn();
