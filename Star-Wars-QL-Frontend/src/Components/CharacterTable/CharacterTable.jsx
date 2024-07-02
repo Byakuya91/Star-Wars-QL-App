@@ -1,3 +1,27 @@
+// Function to check if an individual item (character) matches the search criteria
+const findCharacter = (item, searchTerm, keys) => {
+  // Iterate over the keys (name, species.name, homeworld.name)
+  return keys.some((key) => {
+    // Split the key to handle nested properties (e.g., 'species.name' -> ['species', 'name'])
+    const keyParts = key.split(".");
+    let value = item;
+
+    // Traverse the nested properties to get the value
+    keyParts.forEach((part) => {
+      value = value && value[part];
+    });
+
+    // Check if the value is a string and contains the search term (case-insensitive)
+    return (
+      typeof value === "string" &&
+      value.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
+};
+
+// Export the findCharacter function for testing
+export { findCharacter };
+
 // ?React imports
 import React, { useState } from "react";
 
@@ -177,25 +201,25 @@ const CharacterTable = () => {
 
   //  Create a new function called "findCharacter"
   // ?! Function to check if an individual item (character) matches the search criteria
-  const findCharacter = (item, searchTerm, keys) => {
-    // STEP ONE Iterate over the keys (name, species.name, homeworld.name)
-    return keys.some((key) => {
-      // Sub-STEP ONE: SPLIT the keys to handle nested properties
-      const keyParts = key.split(".");
-      let value = item;
+  // const findCharacter = (item, searchTerm, keys) => {
+  //   // STEP ONE Iterate over the keys (name, species.name, homeworld.name)
+  //   return keys.some((key) => {
+  //     // Sub-STEP ONE: SPLIT the keys to handle nested properties
+  //     const keyParts = key.split(".");
+  //     let value = item;
 
-      // STEP TWO: TRAVERSE the nested array with forEach. NOTE forEach does NOT return a new array.
-      keyParts.forEach((part) => {
-        value = value && value[part];
-      });
+  //     // STEP TWO: TRAVERSE the nested array with forEach. NOTE forEach does NOT return a new array.
+  //     keyParts.forEach((part) => {
+  //       value = value && value[part];
+  //     });
 
-      // STEP THREE: check the value is a string AND contains the search term(case-insensitive)
-      return (
-        typeof value === "string" &&
-        value.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    });
-  };
+  //     // STEP THREE: check the value is a string AND contains the search term(case-insensitive)
+  //     return (
+  //       typeof value === "string" &&
+  //       value.toLowerCase().includes(searchTerm.toLowerCase())
+  //     );
+  //   });
+  // };
 
   // Function to filter characters based on search criteria
   const starSearch = (data, searchTerm, keys) => {
