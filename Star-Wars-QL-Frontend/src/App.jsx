@@ -1,15 +1,37 @@
 import React from "react";
-import { ApolloProvider, ApolloClient, InMemoryCache } from "@apollo/client";
+import {
+  ApolloProvider,
+  ApolloClient,
+  InMemoryCache,
+  HttpLink,
+} from "@apollo/client";
 import CharacterTable from "./Components/CharacterTable/CharacterTable";
 import { ToastContainer } from "react-toastify";
 // import "react-toastify/dist/ReactToastify.css";
 
 // Initialize Apollo Client
 const client = new ApolloClient({
-  uri: "https://swapi-graphql.netlify.app/.netlify/functions/index/graphql",
+  link: new HttpLink({
+    uri: "http://localhost:4000/graphql",
+    fetchOptions: {
+      mode: "cors", // Enable CORS if required
+    },
+  }),
   cache: new InMemoryCache(),
+  onError: ({ networkError, graphQLErrors }) => {
+    if (graphQLErrors) {
+      graphQLErrors.map(({ message, locations, path }) =>
+        console.log(
+          `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
+        )
+      );
+    }
+
+    if (networkError) {
+      console.log(`[Network error]: ${networkError}`);
+    }
+  },
 });
-// New update
 
 function App() {
   return (

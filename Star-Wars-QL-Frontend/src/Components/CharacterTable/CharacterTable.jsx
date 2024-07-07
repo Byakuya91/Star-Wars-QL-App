@@ -81,6 +81,9 @@ const CharacterTable = () => {
     //  ?Attempting to solve stale cache
   });
 
+  // ? Checking if the characters data is being logged
+  console.log("charactersData:", charactersData); // Add this line to log the data
+
   // ! Handler functions
   // ? Showing and hiding the table
   const handleShowTableClick = () => {
@@ -129,19 +132,6 @@ const CharacterTable = () => {
     const updatedCharacters = charactersData.allPeople.people.filter(
       (char) => char.id !== character.id
     );
-    // ! FIRST ATTEMPT FAILED
-    // ?STEP TWO: Create a new object with the updated people array(DOES NOT WORK. "People" is read Only)
-    // Create a new object with updated people array
-    // const updatedAllPeople = {
-    //   ...charactersData.allPeople,
-    //   people: updatedCharacters,
-    // };
-
-    // ?STEP THREE: Update charactersData with the filtered list of characters(DOES NOT WORK. "People" is read only.)
-    // You can directly modify the charactersData state variable to update the list of characters
-    // charactersData.allPeople.people = updatedAllPeople;
-    //? STEP TWO Update the cache with the updated data
-    // My first step does NOT WORK
 
     // ! //(WORKING) Update the cache with the updated data
     client.writeQuery({
@@ -158,69 +148,6 @@ const CharacterTable = () => {
     toast.error("Character successfully deleted!");
   };
 
-  // USING MOCK DATA to fill in the table and get a sense of what it looks like
-  // const mockData = {
-  //   allPeople: {
-  //     people: [
-  //       { name: 'Luke Skywalker' },
-  //       { name: 'Han Solo' },
-  //       { name: 'Princess Leia' },
-  //       { name: 'Chewbacca' },
-  //       { name: 'Darth Vader' },
-  //       { name: 'Lando' },
-  //       { name: 'C-3PO' },
-  //       { name: 'R2-D2' },
-  //       // Add more sample data as needed
-  //     ]
-  //   }
-  // };
-
-  // TODO: Create a search function for the filtered results
-  // const starSearch = (data) => {
-  //   return data.filter((item) =>
-  //     //  ? For each item, check if one of the Star_Keys contains the search term
-  //     Star_keys.some((key) => {
-  //       // Split the keys to handle nested properties
-  //       const keys = key.split(".");
-  //       // Start with the current item
-  //       let value = item;
-  //       // Traverse the nested properties
-  //       keys.forEach((k) => {
-  //         value = value && value[k];
-  //       });
-  //       // Check if the final value exists and contains the searchTerm
-  //       return (
-  //         typeof value === "string" &&
-  //         value.toLowerCase().includes(searchTerm.toLowerCase())
-  //       );
-  //     })
-  //   );
-  // };
-
-  // ? REFACTORED CODE
-
-  //  Create a new function called "findCharacter"
-  // ?! Function to check if an individual item (character) matches the search criteria
-  // const findCharacter = (item, searchTerm, keys) => {
-  //   // STEP ONE Iterate over the keys (name, species.name, homeworld.name)
-  //   return keys.some((key) => {
-  //     // Sub-STEP ONE: SPLIT the keys to handle nested properties
-  //     const keyParts = key.split(".");
-  //     let value = item;
-
-  //     // STEP TWO: TRAVERSE the nested array with forEach. NOTE forEach does NOT return a new array.
-  //     keyParts.forEach((part) => {
-  //       value = value && value[part];
-  //     });
-
-  //     // STEP THREE: check the value is a string AND contains the search term(case-insensitive)
-  //     return (
-  //       typeof value === "string" &&
-  //       value.toLowerCase().includes(searchTerm.toLowerCase())
-  //     );
-  //   });
-  // };
-
   // Function to filter characters based on search criteria
   const starSearch = (data, searchTerm, keys) => {
     // Filter the data (characters) using the findCharacter function
@@ -232,25 +159,14 @@ const CharacterTable = () => {
 
   if (charactersError) return <p>Error: {charactersError.message} </p>;
 
-  //!  Create the filtered data that will be used by the new Map
-  // const filteredStarWarsCharacters =
-  //   charactersData &&
-  //   charactersData.allPeople &&
-  //   charactersData.allPeople.people
-  //     ? starSearch(charactersData.allPeople.people)
-  //     : [];
-
   //! Define search keys for filtering
   //  ? Defining keys based on the fields for the table
   const Star_keys = ["name", "species.name", "homeworld.name"];
 
   // Use the starSearch function to filter characters based on the search term
-  const filteredStarWarsCharacters =
-    charactersData &&
-    charactersData.allPeople &&
-    charactersData.allPeople.people
-      ? starSearch(charactersData.allPeople.people, searchTerm, Star_keys)
-      : [];
+  const filteredStarWarsCharacters = charactersData?.allPeople
+    ? starSearch(charactersData.allPeople, searchTerm, Star_keys)
+    : [];
 
   return (
     <div>
@@ -279,16 +195,14 @@ const CharacterTable = () => {
                 <th>Name</th>
                 <th>Species</th>
                 <th>Homeworld</th>
-                {/* <th>id</th> */}
               </tr>
             </thead>
             <tbody>
               {filteredStarWarsCharacters.map((character, index) => (
-                <tr key={index}>
+                <tr key={character.id}>
                   <td>
                     <b>{index + 1}</b>
-                  </td>{" "}
-                  {/* Display the index starting from 1 */}
+                  </td>
                   <td>
                     <button
                       className="update-btn"
@@ -307,18 +221,11 @@ const CharacterTable = () => {
                     <b>{character.name}</b>
                   </td>
                   <td>
-                    <b>
-                      {character.species ? character.species.name : "Unknown"}
-                    </b>
+                    <b>{character.species}</b>
                   </td>
                   <td>
-                    <b>
-                      {character.homeworld
-                        ? character.homeworld.name
-                        : "Unknown"}
-                    </b>
+                    <b>{character.homeworld}</b>
                   </td>
-                  {/* <td>{character.id}</td> */}
                 </tr>
               ))}
             </tbody>

@@ -4,6 +4,7 @@
   "description": "A backend component to create a server to hold the SWAPI data for my front end",
   "main": "index.js",
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

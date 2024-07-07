@@ -2,7 +2,7 @@
 // 1) Set up resolver to ADD a Star Wars character name, species and homeworld.(DONE)
 // ADDENDUM, Integrate a way to have ids be more naturally generated based on seeded data
 // 2) Set up resolver to DELETE a Star Wars character name, species and homeworld.(DONE)
-// 3) Set up resolver to EDIT a Star Wars character name, species and homeworld.
+// 3) Set up resolver to EDIT a Star Wars character name, species and homeworld(DONE)
 
 // ?OTHER FILE IMPORTS
 const { v4: uuidv4 } = require("uuid");
