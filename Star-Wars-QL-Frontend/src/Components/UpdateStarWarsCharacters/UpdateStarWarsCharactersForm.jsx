@@ -92,7 +92,7 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
     if (name !== originalCharacter.name) {
       updatedFields.name = name;
       console.log("The name has been changed to:", updatedFields.name);
-      toast.success("Name has been changed!");
+      // toast.success("Name has been changed!");
     }
     if (
       species !==
@@ -100,7 +100,7 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
     ) {
       updatedFields.species = species;
       console.log("The species has been changed to:", updatedFields.species);
-      toast.success("Species has been changed!");
+      // toast.success("Species has been changed!");
     }
     if (
       homeworld !==
@@ -111,11 +111,11 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
         "The homeworld has been changed to:",
         updatedFields.homeworld
       );
-      toast.success("Homeworld has been changed!");
+      // toast.success("Homeworld has been changed!");
     }
 
     if (Object.keys(updatedFields).length === 0) {
-      toast.error("No fields have been changed.");
+      // toast.error("No fields have been changed.");
       return;
     }
 

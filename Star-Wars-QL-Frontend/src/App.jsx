@@ -6,7 +6,7 @@ import {
   HttpLink,
 } from "@apollo/client";
 import CharacterTable from "./Components/CharacterTable/CharacterTable";
-import { ToastContainer } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 // Initialize Apollo Client
@@ -33,12 +33,17 @@ const client = new ApolloClient({
   },
 });
 
+const testToast = () => {
+  toast.success("Toastify is working!");
+};
+
 function App() {
   return (
     <ApolloProvider client={client}>
       <div>
         <h1>Star Wars Characters</h1>
         <CharacterTable />
+        <button onClick={testToast}>Test Toast</button>
         <ToastContainer
           position="top-right"
           autoClose={5000}

@@ -27,13 +27,15 @@ import React, { useState } from "react";
 
 // ? Apollo and dependency imports
 import { useQuery } from "@apollo/client";
+import { useApolloClient, useMutation } from "@apollo/client";
 // ?CSS imports
 import "./CharacterTable.css";
 
 // ?Query imports
 import { GET_STAR_WARS_CHARACTERS } from "../Querries/StarWarsNames";
+import { DELETE_STAR_WARS_CHARACTER } from "../Querries/DeleteStarWarsCharacter";
+// ? Component imports
 import SearchBar from "../StarWarsSearchBar/SearchBar";
-import { useApolloClient } from "@apollo/client";
 
 // ? Third party imports
 import { toast } from "react-toastify";
@@ -67,6 +69,10 @@ const CharacterTable = () => {
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   // ? Store the selected character for an update
   const [selectedCharacter, setSelectedCharacter] = useState(null);
+
+  // ? Query pieces of state
+  // ! removing a character
+  const [deleteStarWarsCharacter] = useMutation(DELETE_STAR_WARS_CHARACTER);
 
   // Use the useQuery hook to fetch data, skipping the query if showTable is false
 
@@ -124,28 +130,75 @@ const CharacterTable = () => {
   const client = useApolloClient();
 
   // ? Handling the deletion of a character.
-  const handleDeleteCharacter = (character) => {
-    //? Testing the button if it works(IT WORKS)
-    // console.log("Deleting character:", character);
+  // ! Not working due to TYPEERROR
+  // const handleDeleteCharacter = async (character) => {
+  //   try {
+  //     // 1. Call the deleteStarWarsCharacter mutation to delete the character
+  //     const { data } = await deleteStarWarsCharacter({
+  //       variables: { id: character.id },
+  //     });
 
-    //? STEP ONE: remove the character from local state or cache
-    const updatedCharacters = charactersData.allPeople.people.filter(
-      (char) => char.id !== character.id
-    );
+  //     // 2. Check if charactersData.allPeople exists before filtering
+  //     const updatedCharacters = charactersData.allPeople
+  //       ? charactersData.allPeople.people.filter(
+  //           (char) => char.id !== character.id
+  //         )
+  //       : [];
 
-    // ! //(WORKING) Update the cache with the updated data
-    client.writeQuery({
-      query: GET_STAR_WARS_CHARACTERS, // The query used to fetch the data
-      data: {
-        allPeople: {
-          ...charactersData.allPeople,
-          people: updatedCharacters,
+  //     // 3. Update the Apollo cache with the updated characters data
+  //     client.writeQuery({
+  //       query: GET_STAR_WARS_CHARACTERS,
+  //       data: {
+  //         allPeople: {
+  //           ...charactersData.allPeople, // Preserve other fields from allPeople
+  //           people: updatedCharacters, // Update the people array with filtered characters
+  //         },
+  //       },
+  //     });
+
+  //     // 4. Notify user of successful deletion
+  //     toast.success("Character successfully deleted!");
+  //   } catch (error) {
+  //     // 5. Handle errors if deletion fails
+  //     console.error("Error deleting character:", error);
+  //     toast.error("Failed to delete character.");
+  //   }
+  // };
+
+  // ?! New version
+  const handleDeleteCharacter = async (character) => {
+    try {
+      const { data } = await deleteStarWarsCharacter({
+        variables: { id: character.id },
+      });
+
+      // Assuming data.deleteCharacter returns the deleted character's ID or details
+
+      // Fetch the current cached data
+      const cachedData = client.readQuery({
+        query: GET_STAR_WARS_CHARACTERS,
+      });
+
+      if (!cachedData) return;
+
+      // Update the cached data by filtering out the deleted character
+      const updatedCharacters = cachedData.allPeople.filter(
+        (char) => char.id !== character.id
+      );
+
+      // Write the updated data back to the cache
+      client.writeQuery({
+        query: GET_STAR_WARS_CHARACTERS,
+        data: {
+          allPeople: updatedCharacters,
         },
-      },
-    });
+      });
 
-    // ? Alerting  the user that the character is deleted.
-    toast.error("Character successfully deleted!");
+      toast.success("Character successfully deleted!");
+    } catch (error) {
+      console.error("Error deleting character:", error);
+      toast.error("Failed to delete character.");
+    }
   };
 
   // Function to filter characters based on search criteria

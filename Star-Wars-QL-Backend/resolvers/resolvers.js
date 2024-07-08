@@ -5,7 +5,7 @@
 // 3) Set up resolver to EDIT a Star Wars character name, species and homeworld(DONE)
 
 // ?OTHER FILE IMPORTS
-onst { v4: uuidv4 } = require("uuid");
+const { v4: uuidv4 } = require("uuid");
 
 // Import the array of characters from the data file
 const characters = require("../data/characters");
