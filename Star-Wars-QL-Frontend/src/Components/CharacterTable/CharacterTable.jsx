@@ -44,6 +44,7 @@ import "react-toastify/dist/ReactToastify.css";
 // ! Component imports
 import UpdateStarWarsCharactersForm from "../UpdateStarWarsCharacters/UpdateStarWarsCharactersForm";
 import Modal from "../Modal/modal";
+import StarWarsCharacterForm from "../StarWarsCharacterForm/StarWarsCharacterForm";
 
 // TODOS:KEY TASKS
 // 1) Refactor query calls to include Home-world and species(DONE)
@@ -231,6 +232,7 @@ const CharacterTable = () => {
             handleSearchChange={handleSearchChange}
             clearSearchBar={handleClearSearchBar}
           />
+          <StarWarsCharacterForm />
           <button className="btn" onClick={handleHideTableClick}>
             Hide Star Wars Characters
           </button>
