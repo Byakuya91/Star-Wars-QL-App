@@ -82,7 +82,7 @@ const CharacterTable = () => {
   });
 
   // ? Checking if the characters data is being logged
-  console.log("charactersData:", charactersData); // Add this line to log the data
+  // console.log("charactersData:", charactersData); // Add this line to log the data
 
   // ! Handler functions
   // ? Showing and hiding the table
@@ -185,13 +185,14 @@ const CharacterTable = () => {
             <UpdateStarWarsCharactersForm
               character={selectedCharacter}
               onClose={handleFormClose}
+              // onUpdate={}
             />
           )}
           <table className="table-container">
             <thead>
               <tr>
                 <th>No.</th>
-                <th>Actions</th> {/* Add a new header for the Update button */}
+                <th>Actions</th>
                 <th>Name</th>
                 <th>Species</th>
                 <th>Homeworld</th>

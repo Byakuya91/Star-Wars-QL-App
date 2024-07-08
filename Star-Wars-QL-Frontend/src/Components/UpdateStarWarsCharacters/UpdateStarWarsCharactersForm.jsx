@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
-
-// ? third party & query imports
-import { useApolloClient, useMutation } from "@apollo/client";
+import { useMutation } from "@apollo/client";
 import { UPDATE_CHARACTER } from "../Querries/UpdateStarWarsData";
 import { GET_STAR_WARS_CHARACTERS } from "../Querries/StarWarsNames";
 import { toast, ToastContainer } from "react-toastify";
-// import "react-toastify/dist/ReactToastify.css";
-// !TODO: Code out the form.
+
 const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
   // TODO:
   // 1) build the HMTL form and comment it to avoid causing an error(DONE)
@@ -14,209 +11,125 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
   // 3) make sure to implement  the useMutation hook to see how it work(ONGOING)
   // 4) code out the submit function for a form.
 
-  // ? State variables to hold the form values
-  //  ? character name
-  const [name, setName] = useState(character.name || "");
-  //  ? species name
-  const [speciesName, setSpeciesName] = useState(
-    character.species ? character.species.name : ""
-  );
-  // ? // State for homeworld name: '');
-  const [homeworldName, setHomeworldName] = useState(
-    character.homeworld ? character.homeworld.name : ""
-  );
+  //? Define state variables for the character's original and updated details
+  const [originalCharacter, setOriginalCharacter] = useState({});
+  const [name, setName] = useState("");
+  const [species, setSpecies] = useState("");
+  const [homeworld, setHomeworld] = useState("");
 
-  // New update for git push
+  //? Define the updateCharacter mutation with error handling and cache update logic
+  const [updateCharacter] = useMutation(UPDATE_CHARACTER, {
+    onError: (error) => {
+      console.error("Error updating character:", error);
+      toast.error("Error updating character!");
+    },
+    onCompleted: (data) => {
+      if (data.updateCharacter) {
+        console.log("Character updated successfully!", data);
+        toast.success("Character updated successfully!");
+        if (typeof onUpdate === "function") onUpdate();
+        if (typeof onClose === "function") onClose();
+      } else {
+        toast.error("Character not found.");
+      }
+    },
+    update: (cache, { data: { updateCharacter } }) => {
+      try {
+        const existingData = cache.readQuery({
+          query: GET_STAR_WARS_CHARACTERS,
+        });
 
-  const client = useApolloClient();
+        if (
+          !existingData ||
+          !existingData.allPeople ||
+          !existingData.allPeople.people
+        ) {
+          return;
+        }
 
-  // console.log("The species name is:", speciesName);
-  // console.log("The homeworld name is:", homeworldName);
-  // console.log("The full name is:", name);
+        const updatedCharacters = existingData.allPeople.people.map((person) =>
+          person.id === character.id
+            ? {
+                ...person,
+                name: updateCharacter.name,
+                species: { name: updateCharacter.species },
+                homeworld: { name: updateCharacter.homeworld },
+              }
+            : person
+        );
 
-  // Mutation hook for updating character
-  const [updateCharacter] = useMutation(UPDATE_CHARACTER);
+        cache.writeQuery({
+          query: GET_STAR_WARS_CHARACTERS,
+          data: {
+            allPeople: {
+              ...existingData.allPeople,
+              people: updatedCharacters,
+            },
+          },
+        });
+      } catch (error) {
+        console.error("Error updating cache:", error);
+      }
+    },
+  });
 
-  // Update state when character prop changes
+  //? Populate the form fields with the character's existing details when the component mounts
   useEffect(() => {
     if (character) {
+      setOriginalCharacter(character);
       setName(character.name || "");
-      setSpeciesName(character.species ? character.species.name : "");
-      setHomeworldName(character.homeworld ? character.homeworld.name : "");
+      setSpecies(character.species ? character.species.name : "");
+      setHomeworld(character.homeworld ? character.homeworld.name : "");
     }
   }, [character]);
 
-  // ! debugging code
-  // // ! Testing is the component is being rendered in the DOM
-  // useEffect(() => {
-  //   console.log("UpdateStarWarsCharactersForm component rendered");
-  // }, []); // The empty dependency array ensures the effect runs only once after initial render
-
-  //! Handle form submission(FIRST TAKE DOES NOT WORK)
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   console.log("Submitting update with variables:", {
-  //     id: character.id,
-  //     name,
-  //     speciesName,
-  //     homeworldName,
-  //   });
-  //   try {
-  //     await updateCharacter({
-  //       variables: {
-  //         id: character.id,
-  //         name,
-  //         speciesName: speciesName || null,
-  //         homeworldName: homeworldName || null,
-  //       },
-  //       update: (cache, { data: { updateCharacter } }) => {
-  //         // Read existing data from cache
-  //         const existingData = cache.readQuery({ query: GET_STAR_WARS_CHARACTERS });
-  //         // Update character in the cache
-  //         const updatedPeople = existingData.characters.map(person =>
-  //           person.id === character.id ? updateCharacter : person
-  //         );
-  //         // Write updated data back to cache
-  //         cache.writeQuery({
-  //           query: GET_STAR_WARS_CHARACTERS,
-  //           data: { characters: updatedPeople }
-  //         });
-  //       }
-  //     });
-  //     onClose(); // Close the form after successful update
-  //   } catch (err) {
-  //     console.error("Error updating character:", err); // Log error if mutation fails
-  //     console.error("GraphQL Errors:", err.graphQLErrors); // Log specific GraphQL errors
-  //       console.error("Network Errors:", err.networkError); // Log network errors
-  //   }
-  // };
-
-  // ! Second version with local caching.
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   console.log("Submitting update with variables:", {
-  //     id: character.id,
-  //     name,
-  //     speciesName,
-  //     homeworldName,
-  //   });
-
-  //   try {
-  //     // Perform the update
-  //     await updateCharacter({
-  //       variables: {
-  //         id: character.id,
-  //         name,
-  //         speciesName: speciesName || null,
-  //         homeworldName: homeworldName || null,
-  //       },
-  //     });
-
-  //     // Read existing data from cache
-  //     const existingData = client.readQuery({ query: GET_STAR_WARS_CHARACTERS });
-
-  //     // Ensure existingData is valid and an array
-  //     if (existingData && existingData.characters) {
-  //       const updatedStarWarsPeople = existingData.characters.map(person =>
-  //         person.id === character.id
-  //           ? { ...person, name, species: { name: speciesName }, homeworld: { name: homeworldName } }
-  //           : person
-  //       );
-
-  //       // Write updated data back to cache
-  //       client.writeQuery({
-  //         query: GET_STAR_WARS_CHARACTERS,
-  //         data: { characters: updatedStarWarsPeople },
-  //       });
-
-  //       console.log("Cache after update:", client.readQuery({ query: GET_STAR_WARS_CHARACTERS }));
-  //       onClose(); // Close the form after successful update
-  //     } else {
-  //       console.error("Error: existingData.characters is not an array");
-  //     }
-  //   } catch (err) {
-  //     console.error("Error updating character:", err); // Log error if mutation fails
-  //     console.error("GraphQL Errors:", err.graphQLErrors); // Log specific GraphQL errors
-  //     console.error("Network Errors:", err.networkError); // Log network errors
-  //   }
-  // };
-
-  // ! Third iteration
+  //? Handle form submission to update the character's details
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Updating the cache with variables:", {
-      id: character.id,
-      name,
-      speciesName,
-      homeworldName,
-    });
+    const updatedFields = {};
 
-    try {
-      // Read the existing data from the Apollo Client cache
-      const existingData = client.readQuery({
-        query: GET_STAR_WARS_CHARACTERS,
-      });
-      console.log("Existing data from cache:", existingData);
-
-      // Check if the data exists in the cache and has the expected structure
-      if (
-        !existingData ||
-        !existingData.allPeople ||
-        !existingData.allPeople.people
-      ) {
-        throw new Error("Error: existingData.allPeople.people is not defined");
-      }
-
-      // Map through the existing characters and update the one that matches the character.id
-      const updatedPeople = existingData.allPeople.people.map((person) =>
-        person.id === character.id
-          ? {
-              ...person,
-              name,
-              species: { name: speciesName },
-              homeworld: { name: homeworldName },
-            }
-          : person
+    if (name !== originalCharacter.name) {
+      updatedFields.name = name;
+      console.log("The name has been changed to:", updatedFields.name);
+      toast.success("Name has been changed!");
+    }
+    if (
+      species !==
+      (originalCharacter.species ? originalCharacter.species.name : "")
+    ) {
+      updatedFields.species = species;
+      console.log("The species has been changed to:", updatedFields.species);
+      toast.success("Species has been changed!");
+    }
+    if (
+      homeworld !==
+      (originalCharacter.homeworld ? originalCharacter.homeworld.name : "")
+    ) {
+      updatedFields.homeworld = homeworld;
+      console.log(
+        "The homeworld has been changed to:",
+        updatedFields.homeworld
       );
-
-      // Write the updated data back to the Apollo Client cache
-      client.writeQuery({
-        query: GET_STAR_WARS_CHARACTERS,
-        data: {
-          allPeople: { ...existingData.allPeople, people: updatedPeople },
-        },
-      });
-
-      // Show a success notification
-      toast.success("Character updated successfully!");
-      // Close the form after a successful update
-      onClose();
-    } catch (err) {
-      console.error("Error updating cache:", err);
-      toast.error("Error updating character!");
+      toast.success("Homeworld has been changed!");
     }
 
-    // ? updating the cache locally and avoiding the component calling the API to revert the changes.
-    // ! SWAPI does NOT support mutations
-    // useEffect(() => {
-    //   // This function will be called whenever a 'storage' event is triggered
-    //   const syncLocalStorageChanges = (event) => {
-    //     // Check if the local storage key that triggered the event is 'yourLocalStorageKey'
-    //     if (event.key === "yourLocalStorageKey") {
-    //       // Reload the window to update the UI with the latest data from local storage
-    //       window.location.reload();
-    //     }
-    //   };
+    if (Object.keys(updatedFields).length === 0) {
+      toast.error("No fields have been changed.");
+      return;
+    }
 
-    //   // Add an event listener for the 'storage' event to detect changes in local storage
-    //   window.addEventListener("storage", syncLocalStorageChanges);
-
-    //   // Cleanup function to remove the event listener when the component unmounts
-    //   return () => {
-    //     window.removeEventListener("storage", syncLocalStorageChanges);
-    //   };
-    // }, []);
+    try {
+      await updateCharacter({
+        variables: {
+          id: character.id,
+          ...updatedFields,
+        },
+      });
+    } catch (error) {
+      console.error("Error updating character:", error);
+      toast.error("Error updating character!");
+    }
   };
 
   return (
@@ -228,21 +141,17 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
             id="fullNameInput"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            required
           />
         </label>
         <label>
           Species Name:
-          <input
-            value={speciesName}
-            onChange={(e) => setSpeciesName(e.target.value)}
-          />
+          <input value={species} onChange={(e) => setSpecies(e.target.value)} />
         </label>
         <label>
           Homeworld Name:
           <input
-            value={homeworldName}
-            onChange={(e) => setHomeworldName(e.target.value)}
+            value={homeworld}
+            onChange={(e) => setHomeworld(e.target.value)}
           />
         </label>
         <button type="submit">Update</button>
@@ -250,6 +159,7 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
           Cancel
         </button>
       </form>
+      <ToastContainer />
     </div>
   );
 };
