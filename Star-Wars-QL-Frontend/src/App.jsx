@@ -43,7 +43,7 @@ function App() {
       <div>
         <h1>Star Wars Characters</h1>
         <CharacterTable />
-        {/* <button onClick={testToast}>Test Toast</button> */}
+        <button onClick={testToast}>Test Toast</button>
         <ToastContainer
           position="top-right"
           autoClose={5000}

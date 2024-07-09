@@ -4,6 +4,10 @@
 // 2) Set up resolver to DELETE a Star Wars character name, species and homeworld.(DONE)
 // 3) Set up resolver to EDIT a Star Wars character name, species and homeworld(DONE)
 
+// TODO:
+// 1) Modify the backend to handle errors gracefully with Try-catch(DONE)
+// 2) Implement a way to test the front-end by having the backend throw errors(ONGOING)
+
 // ?OTHER FILE IMPORTS
 const { v4: uuidv4 } = require("uuid");
 
@@ -14,57 +18,73 @@ const characters = require("../data/characters");
 const resolvers = {
   // Define the Query resolvers
   Query: {
-    // Resolver to get all characters
-    allPeople: () => characters,
+    //? Resolver to get all characters
+    allPeople: () => {
+      try {
+        return characters;
+      } catch (error) {
+        console.error("Error fetching characters", error);
+        throw new Error("Failed to fetch characters");
+      }
+    },
   },
-
   // Define the Mutation resolvers
   Mutation: {
-    // Resolver to add a new character
+    //? Resolver to add a new character
     addCharacter: (_, { name, species, homeworld }) => {
-      // Create a new character object with a unique ID
-      const newCharacter = { id: uuidv4(), name, species, homeworld };
-
-      // Add the new character to the array of characters
-      characters.push(newCharacter);
-
-      // Return the new character
-      return newCharacter;
+      try {
+        // ?STEP ONE: create a new object with an id
+        let id;
+        do {
+          id = uuidv4();
+        } while (characters.find((char) => char.id === id));
+        //? STEP TWO: create a new object and add it to the array.
+        const newCharacter = { id, name, species, homeworld };
+        characters.push(newCharacter);
+        return newCharacter;
+      } catch (error) {
+        console.error("Error adding character", error);
+        throw new Error("Failed to add character");
+      }
     },
 
-    // Resolver to delete a character by ID
+    //? Resolver to delete a character by ID
     deleteCharacter: (_, { id }) => {
-      // Find the index of the character with the given ID
-      const characterIndex = characters.findIndex((char) => char.id === id);
-
-      // If the character is found, remove it from the array and return it
-      if (characterIndex > -1) {
-        const deletedCharacter = characters.splice(characterIndex, 1);
-        return deletedCharacter[0];
+      try {
+        // STEP ONE: find the index of the character
+        const characterIndex = characters.findIndex((char) => char.id === id);
+        // STEP TWO: remove the character from the index
+        if (characterIndex > -1) {
+          const deleteCharacter = characters.splice(characterIndex, 1);
+          return deleteCharacter[0];
+        }
+        throw new Error(`Character with id ${id} not found`);
+      } catch (error) {
+        console.error("Error deleting character:", error);
+        throw new Error("Failed to delete character");
       }
-
-      // If the character is not found, return null
-      return null;
     },
 
     // Resolver to update a character by ID
     updateCharacter: (_, { id, name, species, homeworld }) => {
-      // Find the character with the given ID
-      const singleCharacter = characters.find((char) => char.id === id);
+      try {
+        // Find the character with the given ID
+        const singleCharacter = characters.find((char) => char.id === id);
 
-      // If the character is found, update the fields if they are provided
-      if (singleCharacter) {
-        if (name !== undefined) singleCharacter.name = name;
-        if (species !== undefined) singleCharacter.species = species;
-        if (homeworld !== undefined) singleCharacter.homeworld = homeworld;
+        // If the character is found, update the fields if they are provided
+        if (singleCharacter) {
+          if (name !== undefined) singleCharacter.name = name;
+          if (species !== undefined) singleCharacter.species = species;
+          if (homeworld !== undefined) singleCharacter.homeworld = homeworld;
 
-        // Return the updated character
-        return singleCharacter;
+          // Return the updated character
+          return singleCharacter;
+        }
+        throw new Error(`Character with id ${id} not found`);
+      } catch (error) {
+        console.error("Error updating character:", error);
+        throw new Error("Failed to update character");
       }
-
-      // If the character is not found, log an error message and return null
-      console.error(`Character with id ${id} not found`);
-      return null;
     },
   },
 };

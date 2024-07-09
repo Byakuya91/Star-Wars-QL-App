@@ -72,7 +72,7 @@ describe("findCharacter", () => {
     },
   ];
   //   Keys for testing
-  const keys = ["name", "species.name", "homeworld.name"];
+  const keys = ["name", "species", "homeworld"];
 
   test("finds characters by name", () => {
     const result = findCharacter(characters[0], "Luke", keys);

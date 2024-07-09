@@ -1,17 +1,29 @@
-// Function to check if an individual item (character) matches the search criteria
+// Function to check if an individual item (character) matches the search criteria(OLD TAKE)
+// const findCharacter = (item, searchTerm, keys) => {
+//   // Iterate over the keys (name, species.name, homeworld.name)
+//   return keys.some((key) => {
+//     // Split the key to handle nested properties (e.g., 'species.name' -> ['species', 'name'])
+//     const keyParts = key.split(".");
+//     let value = item;
+
+//     // Traverse the nested properties to get the value
+//     keyParts.forEach((part) => {
+//       value = value && value[part];
+//     });
+
+//     // Check if the value is a string and contains the search term (case-insensitive)
+//     return (
+//       typeof value === "string" &&
+//       value.toLowerCase().includes(searchTerm.toLowerCase())
+//     );
+//   });
+// };
+
+// ? New function removes the nested element as it directly locates the keys within the fields
+
 const findCharacter = (item, searchTerm, keys) => {
-  // Iterate over the keys (name, species.name, homeworld.name)
   return keys.some((key) => {
-    // Split the key to handle nested properties (e.g., 'species.name' -> ['species', 'name'])
-    const keyParts = key.split(".");
-    let value = item;
-
-    // Traverse the nested properties to get the value
-    keyParts.forEach((part) => {
-      value = value && value[part];
-    });
-
-    // Check if the value is a string and contains the search term (case-insensitive)
+    const value = item[key];
     return (
       typeof value === "string" &&
       value.toLowerCase().includes(searchTerm.toLowerCase())
@@ -215,7 +227,7 @@ const CharacterTable = () => {
 
   //! Define search keys for filtering
   //  ? Defining keys based on the fields for the table
-  const Star_keys = ["name", "species.name", "homeworld.name"];
+  const Star_keys = ["name", "species", "homeworld"];
 
   // Use the starSearch function to filter characters based on the search term
   const filteredStarWarsCharacters = charactersData?.allPeople
