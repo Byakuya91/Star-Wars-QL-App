@@ -63,9 +63,10 @@ import StarWarsCharacterForm from "../StarWarsCharacterForm/StarWarsCharacterFor
 // 2) Render out the data onto the table(DONE)
 // 3) Set the Stage for the filtering application of the table, based on NAME,SPECIES, and HOMEWORLD(DONE)
 // 4) Update the data:
-// 4A) Create UpdateCharacters component
-// 4B) Create a query to handle updating the data(DO RESEARCH)
-// 4C) Hook up the buttons
+// 4A) Create UpdateCharacters component(DONE)
+// 4B) Create a query to handle updating the data(DONE)
+// 4C) Hook up the buttons(DONE)
+// 5) ADD Sort function to sort the table based on alphabetically or fields like name and species.
 
 // TODOS: supplementary tasks
 // 1) Theme and Dark theme toggler(ONGOING)
@@ -82,10 +83,12 @@ const CharacterTable = () => {
   const [showUpdateForm, setShowUpdateForm] = useState(false);
   // ? Store the selected character for an update
   const [selectedCharacter, setSelectedCharacter] = useState(null);
-
   // ? Query pieces of state
   // ! removing a character
   const [deleteStarWarsCharacter] = useMutation(DELETE_STAR_WARS_CHARACTER);
+
+  // ? State for managing sorting, indicating the key to sort by and the direction (ascending or descending)
+  const [sort, setSort] = useState({ keyToSort: "name", direction: "asc" });
 
   // Use the useQuery hook to fetch data, skipping the query if showTable is false
 
@@ -143,42 +146,7 @@ const CharacterTable = () => {
   const client = useApolloClient();
 
   // ? Handling the deletion of a character.
-  // ! Not working due to TYPEERROR
-  // const handleDeleteCharacter = async (character) => {
-  //   try {
-  //     // 1. Call the deleteStarWarsCharacter mutation to delete the character
-  //     const { data } = await deleteStarWarsCharacter({
-  //       variables: { id: character.id },
-  //     });
 
-  //     // 2. Check if charactersData.allPeople exists before filtering
-  //     const updatedCharacters = charactersData.allPeople
-  //       ? charactersData.allPeople.people.filter(
-  //           (char) => char.id !== character.id
-  //         )
-  //       : [];
-
-  //     // 3. Update the Apollo cache with the updated characters data
-  //     client.writeQuery({
-  //       query: GET_STAR_WARS_CHARACTERS,
-  //       data: {
-  //         allPeople: {
-  //           ...charactersData.allPeople, // Preserve other fields from allPeople
-  //           people: updatedCharacters, // Update the people array with filtered characters
-  //         },
-  //       },
-  //     });
-
-  //     // 4. Notify user of successful deletion
-  //     toast.success("Character successfully deleted!");
-  //   } catch (error) {
-  //     // 5. Handle errors if deletion fails
-  //     console.error("Error deleting character:", error);
-  //     toast.error("Failed to delete character.");
-  //   }
-  // };
-
-  // ?! New version
   const handleDeleteCharacter = async (character) => {
     try {
       const { data } = await deleteStarWarsCharacter({

@@ -34,4 +34,21 @@ tbody tr:last-child td {
   margin: 10px;
 }
 
-/* New update */
+/* Sorting styles */
+.sort-indicator {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  vertical-align: middle;
+  transition: transform 0.2s ease;
+}
+
+.asc {
+  border-bottom: 5px solid #000;
+}
+
+.desc {
+  border-top: 5px solid #000;
+}
