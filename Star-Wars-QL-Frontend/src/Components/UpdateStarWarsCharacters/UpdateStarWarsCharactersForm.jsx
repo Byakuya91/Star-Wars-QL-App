@@ -4,41 +4,40 @@ import { UPDATE_CHARACTER } from "../Querries/UpdateStarWarsData";
 import { GET_STAR_WARS_CHARACTERS } from "../Querries/StarWarsNames";
 import { toast, ToastContainer } from "react-toastify";
 
+// Define the UpdateStarWarsCharactersForm component
 const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
-  // TODO:
-  // 1) build the HMTL form and comment it to avoid causing an error(DONE)
-  // 2) Code out the pieces of state within the form to correspond to the inputs(DONE)
-  // 3) make sure to implement  the useMutation hook to see how it work(ONGOING)
-  // 4) code out the submit function for a form.
-
-  //? Define state variables for the character's original and updated details
+  // State variables to manage the original and updated character details
   const [originalCharacter, setOriginalCharacter] = useState({});
   const [name, setName] = useState("");
   const [species, setSpecies] = useState("");
   const [homeworld, setHomeworld] = useState("");
 
-  //? Define the updateCharacter mutation with error handling and cache update logic
+  // useMutation hook for the UPDATE_CHARACTER mutation
   const [updateCharacter] = useMutation(UPDATE_CHARACTER, {
+    // Handle errors during the mutation
     onError: (error) => {
       console.error("Error updating character:", error);
-      toast.error("Error updating character!");
+      toast.error("Error updating character!"); // Display error notification
     },
+    // Handle successful completion of the mutation
     onCompleted: (data) => {
       if (data.updateCharacter) {
-        console.log("Character updated successfully!", data);
-        toast.success("Character updated successfully!");
-        if (typeof onUpdate === "function") onUpdate();
-        if (typeof onClose === "function") onClose();
+        toast.success("Character updated successfully!"); // Display success notification
+        if (typeof onUpdate === "function") onUpdate(); // Call onUpdate callback if provided
+        if (typeof onClose === "function") onClose(); // Call onClose callback if provided
       } else {
-        toast.error("Character not found.");
+        toast.error("Character not found."); // Display error notification if character not found
       }
     },
+    // Update the Apollo Client cache after the mutation is successful
     update: (cache, { data: { updateCharacter } }) => {
       try {
+        // Read the existing characters from the cache
         const existingData = cache.readQuery({
           query: GET_STAR_WARS_CHARACTERS,
         });
 
+        // Check if the existing data is valid
         if (
           !existingData ||
           !existingData.allPeople ||
@@ -47,6 +46,7 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
           return;
         }
 
+        // Map over the existing characters and update the matching character
         const updatedCharacters = existingData.allPeople.people.map((person) =>
           person.id === character.id
             ? {
@@ -58,6 +58,7 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
             : person
         );
 
+        // Write the updated characters to the cache
         cache.writeQuery({
           query: GET_STAR_WARS_CHARACTERS,
           data: {
@@ -68,12 +69,12 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
           },
         });
       } catch (error) {
-        console.error("Error updating cache:", error);
+        console.error("Error updating cache:", error); // Log error if cache update fails
       }
     },
   });
 
-  //? Populate the form fields with the character's existing details when the component mounts
+  // Populate the form fields with the character's existing details when the component mounts
   useEffect(() => {
     if (character) {
       setOriginalCharacter(character);
@@ -83,7 +84,7 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
     }
   }, [character]);
 
-  //? Handle form submission to update the character's details
+  // Handle form submission to update the character's details
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -91,31 +92,22 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
 
     if (name !== originalCharacter.name) {
       updatedFields.name = name;
-      console.log("The name has been changed to:", updatedFields.name);
-      // toast.success("Name has been changed!");
     }
     if (
       species !==
       (originalCharacter.species ? originalCharacter.species.name : "")
     ) {
       updatedFields.species = species;
-      console.log("The species has been changed to:", updatedFields.species);
-      // toast.success("Species has been changed!");
     }
     if (
       homeworld !==
       (originalCharacter.homeworld ? originalCharacter.homeworld.name : "")
     ) {
       updatedFields.homeworld = homeworld;
-      console.log(
-        "The homeworld has been changed to:",
-        updatedFields.homeworld
-      );
-      // toast.success("Homeworld has been changed!");
     }
 
     if (Object.keys(updatedFields).length === 0) {
-      // toast.error("No fields have been changed.");
+      toast.error("No fields have been changed."); // Display error notification if no fields are changed
       return;
     }
 
@@ -127,8 +119,8 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
         },
       });
     } catch (error) {
-      console.error("Error updating character:", error);
-      toast.error("Error updating character!");
+      console.error("Error updating character:", error); // Log error if mutation fails
+      toast.error("Error updating character!"); // Display error notification
     }
   };
 
@@ -154,12 +146,11 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
             onChange={(e) => setHomeworld(e.target.value)}
           />
         </label>
-        <button type="submit">Update</button>
+        <button type="submit">Submit</button>
         <button type="button" onClick={onClose}>
           Cancel
         </button>
       </form>
-      <ToastContainer />
     </div>
   );
 };

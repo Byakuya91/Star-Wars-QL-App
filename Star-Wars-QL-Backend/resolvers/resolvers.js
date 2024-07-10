@@ -14,12 +14,19 @@ const { v4: uuidv4 } = require("uuid");
 // Import the array of characters from the data file
 const characters = require("../data/characters");
 
+// ?! Variable to throw an error for exceptions testing
+const simulateError = false; // Set to false when you want to avoid the test.
+
 // Define the resolvers for GraphQL operations
 const resolvers = {
   // Define the Query resolvers
   Query: {
     //? Resolver to get all characters
     allPeople: () => {
+      //
+      // ?! Testing when  the resolver when an error is thrown
+      // if (simulateError) throw new Error("Data is unavailable");
+      // console.log("The error's boolean is:", simulateError);
       try {
         return characters;
       } catch (error) {
@@ -32,6 +39,8 @@ const resolvers = {
   Mutation: {
     //? Resolver to add a new character
     addCharacter: (_, { name, species, homeworld }) => {
+      // ?! Testing when  the resolver when an error is thrown
+      // if (simulateError) throw new Error("Intentional error for testing");
       try {
         // ?STEP ONE: create a new object with an id
         let id;
@@ -50,6 +59,8 @@ const resolvers = {
 
     //? Resolver to delete a character by ID
     deleteCharacter: (_, { id }) => {
+      // ?! Testing when  the resolver when an error is thrown
+      // if (simulateError) throw new Error("Intentional error for testing");
       try {
         // STEP ONE: find the index of the character
         const characterIndex = characters.findIndex((char) => char.id === id);
@@ -67,6 +78,8 @@ const resolvers = {
 
     // Resolver to update a character by ID
     updateCharacter: (_, { id, name, species, homeworld }) => {
+      // Simulate error
+      // if (simulateError) throw new Error("Intentional error for testing");
       try {
         // Find the character with the given ID
         const singleCharacter = characters.find((char) => char.id === id);

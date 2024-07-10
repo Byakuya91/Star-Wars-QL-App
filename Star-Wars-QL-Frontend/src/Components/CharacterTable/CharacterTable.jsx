@@ -223,7 +223,13 @@ const CharacterTable = () => {
   // ? In case the data does NOT load for Names, Species and Homeworld
   if (charactersLoading) return <p>Loading...</p>;
 
-  if (charactersError) return <p>Error: {charactersError.message} </p>;
+  // ? Old error message
+  // if (charactersError) return <p>Error: {charactersError.message} </p>;
+  // ? New message
+  if (charactersError) {
+    console.error("Error loading characters:", charactersError);
+    return <p>Error: {charactersError.message}</p>;
+  }
 
   //! Define search keys for filtering
   //  ? Defining keys based on the fields for the table
