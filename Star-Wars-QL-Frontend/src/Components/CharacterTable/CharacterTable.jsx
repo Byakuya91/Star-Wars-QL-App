@@ -90,12 +90,18 @@ const CharacterTable = () => {
   // ? State for managing sorting, indicating the key to sort by and the direction (ascending or descending)
   const [sort, setSort] = useState({ keyToSort: "name", direction: "asc" });
 
+  // ? Testing the sort and setSort for the Handler function
+  console.log("the DEFAULT sort value is:", sort);
+
   // Use the useQuery hook to fetch data, skipping the query if showTable is false
 
-  // TODO: Sorting capablities
-  // 1) handler function to "sort" the state whenever a column header is CLICKED.(ONGOING)
-  // 2) a function to sort the data based on the keys.
-  // 3) implementing the data into the table
+  // TODO: Sorting Capabilities
+  // 1) handler function to "sort" the state whenever a column header is CLICKED.(DONE)
+  // 2) a function to sort the data based on the key(DONE)
+  // 3) implementing the data into the table(ONGOING)
+  // 3A) test the "asc" and "desc" handler function(DONE)
+  //  3B) implement the buttons into the headers on JSX(DONE)
+  // 3C) hook up the sortedStarWarsCharacters into the table
 
   //! Fetch data for Star Wars names
   const {
@@ -209,56 +215,84 @@ const CharacterTable = () => {
       const aValue = a[keyToSort].toLowerCase();
       const bValue = b[keyToSort].toLowerCase();
 
-      // STEP THREE: comparisons based on "asc" and "dsc" and their index
+      // ! OLD CODE: hard to understand/ read
+      // if (direction === "asc") {
+      //   return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+      // } else {
+      //   return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+      // }
+
+      // STEP THREE: comparisons based on "asc" and "dsc" and their index.(NEW TAKE: MORE READABLE)
+      // ?sorting order "asc" conditionals
       if (direction === "asc") {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+        // ?Asc order: aValue BEFORE bValue
+        if (aValue < bValue) {
+          // NOTE the values for "return" mean the order of elements during sorting.
+          return -1;
+          // ? Asc order: aValue AFTER bValue
+        } else if (aValue > bValue) {
+          return 1;
+        } else {
+          // ? aValue and Bvalue are the SAME
+          return 0;
+        }
       } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+        // ? sorting order "desc" conditionals
+        // ?Desc order: a BEFORE b
+        if (aValue > bValue) {
+          return -1;
+          // ? Desc order: a AFTER B
+        } else if (aValue < bValue) {
+          return 1; // a comes after b
+          //? Both are the same
+        } else {
+          return 0; // a and b are equal
+        }
       }
     });
   };
 
   //  ! Tests of the sort(PASSED)
 
-  const TestStarWarsCharacters = [
-    { id: "1", name: "Leia Organa", species: "Human", homeworld: "Alderaan" },
-    { id: "2", name: "Darth Vader", species: "Human", homeworld: "Tatooine" },
-    { id: "3", name: "Han Solo", species: "Human", homeworld: "Tatooine" },
-    { id: "4", name: "R2-D2", species: "Droid", homeworld: "Naboo" },
-    { id: "5", name: "C-3PO", species: "Droid", homeworld: "Tatooine" },
-  ];
+  // const TestStarWarsCharacters = [
+  //   { id: "1", name: "Leia Organa", species: "Human", homeworld: "Alderaan" },
+  //   { id: "2", name: "Darth Vader", species: "Human", homeworld: "Tatooine" },
+  //   { id: "3", name: "Han Solo", species: "Human", homeworld: "Tatooine" },
+  //   { id: "4", name: "R2-D2", species: "Droid", homeworld: "Naboo" },
+  //   { id: "5", name: "C-3PO", species: "Droid", homeworld: "Tatooine" },
+  // ];
 
-  // Sorting by 'name' in ascending order
-  const sortedByNameAsc = sortData(TestStarWarsCharacters, "name", "asc");
+  // // Sorting by 'name' in ascending order
+  // const sortedByNameAsc = sortData(TestStarWarsCharacters, "name", "asc");
 
-  // Sorting by 'name' in descending order
-  const sortedByNameDesc = sortData(TestStarWarsCharacters, "name", "desc");
+  // // Sorting by 'name' in descending order
+  // const sortedByNameDesc = sortData(TestStarWarsCharacters, "name", "desc");
 
-  // Sorting by 'homeworld' in ascending order
-  const sortedByHomeworldAsc = sortData(
-    TestStarWarsCharacters,
-    "homeworld",
-    "asc"
-  );
+  // // Sorting by 'homeworld' in ascending order
+  // const sortedByHomeworldAsc = sortData(
+  //   TestStarWarsCharacters,
+  //   "homeworld",
+  //   "asc"
+  // );
 
-  // Sorting by 'homeworld' in descending order
-  const sortedByHomeworldDsc = sortData(
-    TestStarWarsCharacters,
-    "homeworld",
-    "dsc"
-  );
+  // // Sorting by 'homeworld' in descending order
+  // const sortedByHomeworldDsc = sortData(
+  //   TestStarWarsCharacters,
+  //   "homeworld",
+  //   "dsc"
+  // );
 
-  console.log(
-    "the Test mock data for Star Wars Characters UNALTERED IS:",
-    TestStarWarsCharacters
-  );
-  console.log("The results for sortedByNameAsc is:", sortedByNameAsc);
+  // console.log(
+  //   "the Test mock data for Star Wars Characters UNALTERED IS:",
+  //   TestStarWarsCharacters
+  // );
+  // console.log("The results for sortedByNameAsc is:", sortedByNameAsc);
 
-  console.log("The results for sortedByNameDsc is:", sortedByNameDesc);
+  // console.log("The results for sortedByNameDsc is:", sortedByNameDesc);
 
-  console.log("The results for sortedByHomeworldAsc is:", sortedByHomeworldAsc);
+  // console.log("The results for sortedByHomeworldAsc is:", sortedByHomeworldAsc);
 
-  console.log("The results for sortedByHomeworldDsc is:", sortedByHomeworldDsc);
+  // console.log("The results for sortedByHomeworldDsc is:", sortedByHomeworldDsc);
 
   // ? In case the data does NOT load for Names, Species and Homeworld
   if (charactersLoading) return <p>Loading...</p>;
@@ -281,12 +315,13 @@ const CharacterTable = () => {
     : [];
 
   // ? Creating a new piece of state to sort the filetered StarWars Characters
-  // const sortedStarWarsCharacters = sortData(
-  //   filteredStarWarsCharacters,
-  //   sort,
-  //   keyToSort,
-  //   sort.direction
-  // );
+
+  const { keyToSort, direction } = sort;
+  const sortedStarWarsCharacters = sortData(
+    filteredStarWarsCharacters,
+    keyToSort,
+    direction
+  );
 
   return (
     <div>
@@ -314,13 +349,13 @@ const CharacterTable = () => {
               <tr>
                 <th>No.</th>
                 <th>Actions</th>
-                <th>Name</th>
-                <th>Species</th>
-                <th>Homeworld</th>
+                <th onClick={() => handleSort("name")}>Name</th>
+                <th onClick={() => handleSort("species")}>Species</th>
+                <th onClick={() => handleSort("homeworld")}>Homeworld</th>
               </tr>
             </thead>
             <tbody>
-              {filteredStarWarsCharacters.map((character, index) => (
+              {sortedStarWarsCharacters.map((character, index) => (
                 <tr key={character.id}>
                   <td>
                     <b>{index + 1}</b>
