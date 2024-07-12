@@ -101,5 +101,15 @@ describe("CharacterTable", () => {
     render(<MockedProvider mocks={mocks} addTypename={false} />);
   });
 
+  // ?! previous unit test: valid response for an API. Return an exception/ error from the API.
+  // ? How should I respond to the user: That's the unit test.
+  // ? Look into the DOM and try to show the error part.
+  // ? API message to the user, access to the DOM. Look for proper error.
+  // ? Way the unit: write a test name, loadData from API
+  // ? Mock the respond and render the component. Look at the DOM to ensure, particular elements got loaded or not. Mocking an API, loading a react component, particular element loaded it.
+  // ? Mock the API call
+  // ? Render the component, level all the mocks, load the component, give to access to rendered component
+  // ? Render a table header and row
+
   // More tests can be added here to simulate user interactions and verify the component's behavior
 });

@@ -92,6 +92,11 @@ const CharacterTable = () => {
 
   // Use the useQuery hook to fetch data, skipping the query if showTable is false
 
+  // TODO: Sorting capablities
+  // 1) handler function to "sort" the state whenever a column header is CLICKED.(ONGOING)
+  // 2) a function to sort the data based on the keys.
+  // 3) implementing the data into the table
+
   //! Fetch data for Star Wars names
   const {
     loading: charactersLoading,
@@ -126,6 +131,8 @@ const CharacterTable = () => {
     setSearchTerm("");
   };
 
+  // ?Handler:
+
   // ! Handlers for CRUD operations for the table
   // ? Handler: show the update form
   const handleUpdateButtonClick = (character) => {
@@ -146,6 +153,12 @@ const CharacterTable = () => {
   const client = useApolloClient();
 
   // ? Handling the deletion of a character.
+  const handleSort = (key) => {
+    // ?STEP ONE: define a direction for the data.
+    const direction = sort.direction === "asc" ? "desc" : "asc";
+    //  ?STEP TWO: use the setter
+    setSort({ keyToSort: key, direction });
+  };
 
   const handleDeleteCharacter = async (character) => {
     try {
@@ -182,11 +195,70 @@ const CharacterTable = () => {
     }
   };
 
-  // Function to filter characters based on search criteria
+  //? Function to filter characters based on search criteria
   const starSearch = (data, searchTerm, keys) => {
     // Filter the data (characters) using the findCharacter function
     return data.filter((item) => findCharacter(item, searchTerm, keys));
   };
+
+  // ? a function to sort the data
+  const sortData = (data, keyToSort, direction) => {
+    //  STEP ONE: create a shallow copy of an array and sort it
+    return data.slice().sort((a, b) => {
+      // STEP TWO: extract the values for comparison, accounting for case sensitivity
+      const aValue = a[keyToSort].toLowerCase();
+      const bValue = b[keyToSort].toLowerCase();
+
+      // STEP THREE: comparisons based on "asc" and "dsc" and their index
+      if (direction === "asc") {
+        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+      } else {
+        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+      }
+    });
+  };
+
+  //  ! Tests of the sort(PASSED)
+
+  const TestStarWarsCharacters = [
+    { id: "1", name: "Leia Organa", species: "Human", homeworld: "Alderaan" },
+    { id: "2", name: "Darth Vader", species: "Human", homeworld: "Tatooine" },
+    { id: "3", name: "Han Solo", species: "Human", homeworld: "Tatooine" },
+    { id: "4", name: "R2-D2", species: "Droid", homeworld: "Naboo" },
+    { id: "5", name: "C-3PO", species: "Droid", homeworld: "Tatooine" },
+  ];
+
+  // Sorting by 'name' in ascending order
+  const sortedByNameAsc = sortData(TestStarWarsCharacters, "name", "asc");
+
+  // Sorting by 'name' in descending order
+  const sortedByNameDesc = sortData(TestStarWarsCharacters, "name", "desc");
+
+  // Sorting by 'homeworld' in ascending order
+  const sortedByHomeworldAsc = sortData(
+    TestStarWarsCharacters,
+    "homeworld",
+    "asc"
+  );
+
+  // Sorting by 'homeworld' in descending order
+  const sortedByHomeworldDsc = sortData(
+    TestStarWarsCharacters,
+    "homeworld",
+    "dsc"
+  );
+
+  console.log(
+    "the Test mock data for Star Wars Characters UNALTERED IS:",
+    TestStarWarsCharacters
+  );
+  console.log("The results for sortedByNameAsc is:", sortedByNameAsc);
+
+  console.log("The results for sortedByNameDsc is:", sortedByNameDesc);
+
+  console.log("The results for sortedByHomeworldAsc is:", sortedByHomeworldAsc);
+
+  console.log("The results for sortedByHomeworldDsc is:", sortedByHomeworldDsc);
 
   // ? In case the data does NOT load for Names, Species and Homeworld
   if (charactersLoading) return <p>Loading...</p>;
@@ -203,10 +275,18 @@ const CharacterTable = () => {
   //  ? Defining keys based on the fields for the table
   const Star_keys = ["name", "species", "homeworld"];
 
-  // Use the starSearch function to filter characters based on the search term
+  //? Use the starSearch function to filter characters based on the search term
   const filteredStarWarsCharacters = charactersData?.allPeople
     ? starSearch(charactersData.allPeople, searchTerm, Star_keys)
     : [];
+
+  // ? Creating a new piece of state to sort the filetered StarWars Characters
+  // const sortedStarWarsCharacters = sortData(
+  //   filteredStarWarsCharacters,
+  //   sort,
+  //   keyToSort,
+  //   sort.direction
+  // );
 
   return (
     <div>
