@@ -1,12 +1,20 @@
 // Import necessary libraries
+// ?React libraries
 import React from "react";
-import { render, screen, fireEvent } from "@testing-library/react";
-import "@testing-library/jest-dom";
-import CharacterTable, { findCharacter } from "./CharacterTable";
+import { act } from "react";
+import { createRoot } from "react-dom/client";
+
+// ?Testing libaries
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
+import { describe, test } from "@testing-library/jest-dom/extend-expect";
+// ?Apollo client libraries
 import { MockedProvider } from "@apollo/client/testing";
+//? Component libraries
+import CharacterTable, { findCharacter } from "./CharacterTable";
+// ?Query imports
 import { GET_STAR_WARS_CHARACTERS } from "../Querries/StarWarsNames";
 
-//? Mock data for Apollo Client
+// Mock data for Apollo Client
 const mocks = [
   {
     request: {
@@ -14,64 +22,55 @@ const mocks = [
     },
     result: {
       data: {
-        allPeople: {
-          people: [
-            {
-              id: "1",
-              name: "Luke Skywalker",
-              species: { name: "Human" },
-              homeworld: { name: "Tatooine" },
-            },
-            {
-              id: "2",
-              name: "Darth Vader",
-              species: { name: "Human" },
-              homeworld: { name: "Tatooine" },
-            },
-            {
-              id: "3",
-              name: "Leia Organa",
-              species: { name: "Human" },
-              homeworld: { name: "Alderaan" },
-            },
-            {
-              id: "4",
-              name: "Chewbacca",
-              species: { name: "Wookiee" },
-              homeworld: { name: "Kashyyyk" },
-            },
-          ],
-        },
+        allPeople: [
+          {
+            id: "1",
+            name: "Luke Skywalker",
+            species: "Human",
+            homeworld: "Tatooine",
+          },
+          {
+            id: "2",
+            name: "Darth Vader",
+            species: "Human",
+            homeworld: "Tatooine",
+          },
+          {
+            id: "3",
+            name: "Han Solo",
+            species: "Human",
+            homeworld: "Tatooine",
+          },
+          {
+            id: "4",
+            name: "Leia Organa",
+            species: "Human",
+            homeworld: "Alderaan",
+          },
+          { id: "5", name: "R2-D2", species: "droid", homeworld: "Tatooine" },
+          { id: "6", name: "C3P0", species: "droid", homeworld: "Tatooine" },
+        ],
       },
     },
+  },
+  {
+    request: {
+      query: GET_STAR_WARS_CHARACTERS,
+    },
+    error: new Error("Failed to fetch data"),
   },
 ];
 
 // Tests for the findCharacter function
 describe("findCharacter", () => {
   const characters = [
-    {
-      name: "Luke Skywalker",
-      species: { name: "Human" },
-      homeworld: { name: "Tatooine" },
-    },
-    {
-      name: "Darth Vader",
-      species: { name: "Human" },
-      homeworld: { name: "Tatooine" },
-    },
-    {
-      name: "Leia Organa",
-      species: { name: "Human" },
-      homeworld: { name: "Alderaan" },
-    },
-    {
-      name: "Chewbacca",
-      species: { name: "Wookiee" },
-      homeworld: { name: "Kashyyyk" },
-    },
+    { name: "Luke Skywalker", species: "Human", homeworld: "Tatooine" },
+    { name: "Darth Vader", species: "Human", homeworld: "Tatooine" },
+    { name: "Han Solo", species: "Human", homeworld: "Tatooine" },
+    { name: "Leia Organa", species: "Human", homeworld: "Alderaan" },
+    { name: "R2-D2", species: "droid", homeworld: "Tatooine" },
+    { name: "C3P0", species: "droid", homeworld: "Tatooine" },
   ];
-  //   Keys for testing
   const keys = ["name", "species", "homeworld"];
 
   test("finds characters by name", () => {
@@ -80,7 +79,7 @@ describe("findCharacter", () => {
   });
 
   test("finds characters by species", () => {
-    const result = findCharacter(characters[3], "Wookiee", keys);
+    const result = findCharacter(characters[4], "droid", keys);
     expect(result).toBe(true);
   });
 
@@ -98,18 +97,55 @@ describe("findCharacter", () => {
 // Tests for the CharacterTable component
 describe("CharacterTable", () => {
   test("renders without crashing", () => {
-    render(<MockedProvider mocks={mocks} addTypename={false} />);
+    const div = document.createElement("div");
+    const root = createRoot(div);
+    root.render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <CharacterTable />
+      </MockedProvider>
+    );
   });
 
-  // ?! previous unit test: valid response for an API. Return an exception/ error from the API.
-  // ? How should I respond to the user: That's the unit test.
-  // ? Look into the DOM and try to show the error part.
-  // ? API message to the user, access to the DOM. Look for proper error.
-  // ? Way the unit: write a test name, loadData from API
-  // ? Mock the respond and render the component. Look at the DOM to ensure, particular elements got loaded or not. Mocking an API, loading a react component, particular element loaded it.
-  // ? Mock the API call
-  // ? Render the component, level all the mocks, load the component, give to access to rendered component
-  // ? Render a table header and row
+  test("renders the table with data from the API", async () => {
+    const div = document.createElement("div");
+    const root = createRoot(div);
+    root.render(
+      <MockedProvider mocks={[mocks[0]]} addTypename={false}>
+        <CharacterTable />
+      </MockedProvider>
+    );
 
-  // More tests can be added here to simulate user interactions and verify the component's behavior
+    // Click the button to show the table
+    fireEvent.click(screen.getByText("Show Star Wars Characters"));
+
+    // Wait for the table to be rendered
+    await waitFor(() => {
+      expect(screen.getByText("Luke Skywalker")).toBeInTheDocument();
+      expect(screen.getByText("Darth Vader")).toBeInTheDocument();
+      expect(screen.getByText("Han Solo")).toBeInTheDocument();
+      expect(screen.getByText("Leia Organa")).toBeInTheDocument();
+      expect(screen.getByText("R2-D2")).toBeInTheDocument();
+      expect(screen.getByText("C3P0")).toBeInTheDocument();
+    });
+  });
+
+  test("displays an error message when the API call fails", async () => {
+    const div = document.createElement("div");
+    const root = createRoot(div);
+    root.render(
+      <MockedProvider mocks={[mocks[1]]} addTypename={false}>
+        <CharacterTable />
+      </MockedProvider>
+    );
+
+    // Click the button to show the table
+    fireEvent.click(screen.getByText("Show Star Wars Characters"));
+
+    // Wait for the error message to be rendered
+    await waitFor(() => {
+      expect(
+        screen.getByText("Error: Failed to fetch data")
+      ).toBeInTheDocument();
+    });
+  });
 });
