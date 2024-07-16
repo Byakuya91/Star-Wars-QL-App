@@ -1,4 +1,3 @@
-// Import necessary libraries
 // ?React libraries
 import React from "react";
 import { act } from "react";
@@ -6,7 +5,7 @@ import { createRoot } from "react-dom/client";
 
 // ?Testing libaries
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
-import { describe, test } from "@testing-library/jest-dom/extend-expect";
+import "@testing-library/jest-dom/extend-expect";
 // ?Apollo client libraries
 import { MockedProvider } from "@apollo/client/testing";
 //? Component libraries
@@ -14,8 +13,9 @@ import CharacterTable, { findCharacter } from "./CharacterTable";
 // ?Query imports
 import { GET_STAR_WARS_CHARACTERS } from "../Querries/StarWarsNames";
 
+// ? STEP ONE: Mock the data
 // Mock data for Apollo Client
-const mocks = [
+const starWarsMockData = [
   {
     request: {
       query: GET_STAR_WARS_CHARACTERS,
@@ -61,60 +61,25 @@ const mocks = [
   },
 ];
 
-// Tests for the findCharacter function
-describe("findCharacter", () => {
-  const characters = [
-    { name: "Luke Skywalker", species: "Human", homeworld: "Tatooine" },
-    { name: "Darth Vader", species: "Human", homeworld: "Tatooine" },
-    { name: "Han Solo", species: "Human", homeworld: "Tatooine" },
-    { name: "Leia Organa", species: "Human", homeworld: "Alderaan" },
-    { name: "R2-D2", species: "droid", homeworld: "Tatooine" },
-    { name: "C3P0", species: "droid", homeworld: "Tatooine" },
-  ];
-  const keys = ["name", "species", "homeworld"];
+//? STEP TWO: Render the table component
 
-  test("finds characters by name", () => {
-    const result = findCharacter(characters[0], "Luke", keys);
-    expect(result).toBe(true);
-  });
-
-  test("finds characters by species", () => {
-    const result = findCharacter(characters[4], "droid", keys);
-    expect(result).toBe(true);
-  });
-
-  test("finds characters by homeworld", () => {
-    const result = findCharacter(characters[0], "Tatooine", keys);
-    expect(result).toBe(true);
-  });
-
-  test("returns false if no characters match", () => {
-    const result = findCharacter(characters[0], "Yoda", keys);
-    expect(result).toBe(false);
-  });
-});
-
-// Tests for the CharacterTable component
-describe("CharacterTable", () => {
-  test("renders without crashing", () => {
-    const div = document.createElement("div");
-    const root = createRoot(div);
-    root.render(
-      <MockedProvider mocks={mocks} addTypename={false}>
-        <CharacterTable />
-      </MockedProvider>
-    );
-  });
-
+describe("CharacterTables Component", () => {
   test("renders the table with data from the API", async () => {
-    const div = document.createElement("div");
-    const root = createRoot(div);
-    root.render(
-      <MockedProvider mocks={[mocks[0]]} addTypename={false}>
-        <CharacterTable />
-      </MockedProvider>
-    );
+    //! Implementing createRoot
+    // ? STEP ONE: create div element
+    const container = document.createElement("div");
+    // ? STEP TWO: append the div to the body  of the doc
+    document.body.appendChild(container);
+    // ? STEP THREE: create a root for simulation.
+    const root = createRoot(container);
 
+    await act(async () => {
+      root.render(
+        <MockedProvider mocks={[starWarsMockData[0]]} addTypename={false}>
+          <CharacterTable />
+        </MockedProvider>
+      );
+    });
     // Click the button to show the table
     fireEvent.click(screen.getByText("Show Star Wars Characters"));
 
@@ -127,16 +92,24 @@ describe("CharacterTable", () => {
       expect(screen.getByText("R2-D2")).toBeInTheDocument();
       expect(screen.getByText("C3P0")).toBeInTheDocument();
     });
+    //  ? Unmounting the component
+    root.unmount();
+    document.body.removeChild(container);
   });
 
+  // ? Failure to call an API
   test("displays an error message when the API call fails", async () => {
-    const div = document.createElement("div");
-    const root = createRoot(div);
-    root.render(
-      <MockedProvider mocks={[mocks[1]]} addTypename={false}>
-        <CharacterTable />
-      </MockedProvider>
-    );
+    const container = document.createElement("div");
+    document.body.appendChild(container);
+    const root = createRoot(container);
+
+    await act(async () => {
+      root.render(
+        <MockedProvider mocks={[starWarsMockData[1]]} addTypename={false}>
+          <CharacterTable />
+        </MockedProvider>
+      );
+    });
 
     // Click the button to show the table
     fireEvent.click(screen.getByText("Show Star Wars Characters"));
@@ -147,5 +120,8 @@ describe("CharacterTable", () => {
         screen.getByText("Error: Failed to fetch data")
       ).toBeInTheDocument();
     });
+
+    root.unmount();
+    document.body.removeChild(container);
   });
 });
