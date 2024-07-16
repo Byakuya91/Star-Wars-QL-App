@@ -348,9 +348,21 @@ const CharacterTable = () => {
               <tr>
                 <th>No.</th>
                 <th>Actions</th>
-                <th onClick={() => handleSort("name")}>Name</th>
-                <th onClick={() => handleSort("species")}>Species</th>
-                <th onClick={() => handleSort("homeworld")}>Homeworld</th>
+                <th onClick={() => handleSort("name")}>
+                  Name{" "}
+                  {sort.keyToSort === "name" &&
+                    (sort.direction === "asc" ? "▲ " : "▼ ")}
+                </th>
+                <th onClick={() => handleSort("species")}>
+                  Species
+                  {sort.keyToSort === "species" &&
+                    (sort.direction === "asc" ? "▲ " : "▼ ")}
+                </th>
+                <th onClick={() => handleSort("homeworld")}>
+                  Homeworld
+                  {sort.keyToSort === "homeworld" &&
+                    (sort.direction === "asc" ? "▲ " : "▼ ")}
+                </th>
               </tr>
             </thead>
             <tbody>

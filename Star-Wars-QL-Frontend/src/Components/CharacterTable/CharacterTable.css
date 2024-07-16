@@ -52,3 +52,10 @@ tbody tr:last-child td {
 .desc {
   border-top: 5px solid #000;
 }
+
+/* ? Sorting styles */
+th {
+  cursor: pointer;
+  position: relative;
+  padding-right: 20px; /* Adjust for arrow space */
+}
