@@ -13,14 +13,16 @@ import "../Modal/modal.css";
 // New update
 const Modal = ({ children, isOpen, onClose }) => {
   // Close the modal when clicking outside the modal content
-  // const handleBackdropClick = (e) => {
-  //   if (e.target === e.currentTarget) {
-  //     onClose();
-  //   }
-  // };
+  const handleBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+  //? Opening and closing the modal
+  if (!isOpen) return null;
 
   return (
-    <div className="modal-container">
+    <div className="modal-container" onClick={handleBackdropClick}>
       <div className="modal">
         <div className="modal-header">
           <span className="close" onClick={onClose}>

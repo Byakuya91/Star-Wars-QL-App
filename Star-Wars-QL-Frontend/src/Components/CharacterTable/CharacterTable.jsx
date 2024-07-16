@@ -337,13 +337,12 @@ const CharacterTable = () => {
           <button className="btn" onClick={handleHideTableClick}>
             Hide Star Wars Characters
           </button>
-          {showUpdateForm && (
+          <Modal isOpen={showUpdateForm} onClose={handleFormClose}>
             <UpdateStarWarsCharactersForm
               character={selectedCharacter}
               onClose={handleFormClose}
-              // onUpdate={}
             />
-          )}
+          </Modal>
           <table className="table-container">
             <thead>
               <tr>
