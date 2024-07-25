@@ -23,12 +23,12 @@ import StarWarsCharacterForm from "../StarWarsCharacterForm/StarWarsCharacterFor
 // 4A) Create UpdateCharacters component(DONE)
 // 4B) Create a query to handle updating the data(DONE)
 // 4C) Hook up the buttons(DONE)
-// 5) ADD Sort function to sort the table based on alphabetically or fields like name and species.
+// 5) ADD Sort function to sort the table based on alphabetically or fields like name and species(DONE)
 
 // TODOS: supplementary tasks
 // 1) Theme and Dark theme toggler(ONGOING)
 
-// This is a new update
+// Pagimation
 
 const CharacterTable = () => {
   // ? Pieces of states
@@ -41,6 +41,12 @@ const CharacterTable = () => {
   // Apollo Client and Mutation
   const [deleteStarWarsCharacter] = useMutation(DELETE_STAR_WARS_CHARACTER); // Mutation hook for deleting characters
   const client = useApolloClient(); // Apollo Client instance to read and write to the cache
+  // Pagimation
+
+  //  The current page number
+  const [currentPage, setCurrentPage] = useState(1);
+  // The number of charactersPerPage
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   //? Query to fetch characters
   const {
@@ -96,6 +102,15 @@ const CharacterTable = () => {
     return sortData(filteredStarWarsCharacters, keyToSort, direction);
   }, [filteredStarWarsCharacters, keyToSort, direction, sortData]);
 
+  //? Pagimation logic: Calculate the indices to slice data
+  const indexOfLastStarWarsCharacter = currentPage * itemsPerPage;
+  const indexOfFirstStarWarsCharacter =
+    indexOfLastStarWarsCharacter - itemsPerPage;
+  const currentStarWarsCharacters = sortedStarWarsCharacters.slice(
+    indexOfFirstStarWarsCharacter,
+    indexOfLastStarWarsCharacter
+  );
+
   //? Event Handlers
   const handleShowTableClick = () => {
     setShowTable(true); // Show the table of characters
@@ -128,15 +143,37 @@ const CharacterTable = () => {
     setSort({ keyToSort: key, direction }); // Update sort state
   };
 
+  //? Pagimation handlers
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) =>
+      Math.min(
+        prevPage + 1,
+        Math.ceil(sortedStarWarsCharacters.length / itemsPerPage)
+      )
+    );
+  };
+  const handlePreviousPage = () => {
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
+  };
+  const handlePageChange = () => {
+    setCurrentPage(pageNumber);
+  };
+
   // Use the useQuery hook to fetch data, skipping the query if showTable is false
 
-  // TODO: Sorting Capabilities
+  // TODO: Sorting Capabilities(DONE)
   // 1) handler function to "sort" the state whenever a column header is CLICKED.(DONE)
   // 2) a function to sort the data based on the key(DONE)
   // 3) implementing the data into the table(ONGOING)
   // 3A) test the "asc" and "desc" handler function(DONE)
   //  3B) implement the buttons into the headers on JSX(DONE)
   // 3C) hook up the sortedStarWarsCharacters into the table(DONE)
+
+  // TODO: Pagimantion(ONGOING)
+  // 1)Establish pieces of state(DONE)
+  // 2)handler functions to operate the buttons to shift pages(DONE)
+  // 3)Calculate the Pagimated data for each page(DONE)
+  // 4)Render the Pagimation controls(ONGOING)
 
   // Function to handle character deletion
   const handleDeleteCharacter = async (character) => {
@@ -196,6 +233,21 @@ const CharacterTable = () => {
               onClose={handleFormClose}
             />
           </Modal>
+          <div className="pagimation-controls">
+            <button onClick={handlePreviousPage} disabled={itemsPerPage === 1}>
+              Previous
+            </button>
+            <span>Page {currentPage}</span>
+            <button
+              onClick={handleNextPage}
+              disabled={
+                currentPage ===
+                Math.ceil(sortedStarWarsCharacters.length / itemsPerPage)
+              }
+            >
+              Next
+            </button>
+          </div>
           <table className="table-container">
             <thead>
               <tr>
