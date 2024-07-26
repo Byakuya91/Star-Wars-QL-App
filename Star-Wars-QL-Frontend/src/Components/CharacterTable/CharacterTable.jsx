@@ -173,7 +173,7 @@ const CharacterTable = () => {
   // 1)Establish pieces of state(DONE)
   // 2)handler functions to operate the buttons to shift pages(DONE)
   // 3)Calculate the Pagimated data for each page(DONE)
-  // 4)Render the Pagimation controls(ONGOING)
+  // 4)Render the Pagimation controls(DONE)
 
   // Function to handle character deletion
   const handleDeleteCharacter = async (character) => {
@@ -256,22 +256,22 @@ const CharacterTable = () => {
                 <th onClick={() => handleSort("name")}>
                   Name{" "}
                   {sort.keyToSort === "name" &&
-                    (sort.direction === "asc" ? "▲ " : "▼ ")}
+                    (sort.direction === "asc" ? "▲(Asc) " : "▼(Desc) ")}
                 </th>
                 <th onClick={() => handleSort("species")}>
                   Species
                   {sort.keyToSort === "species" &&
-                    (sort.direction === "asc" ? "▲ " : "▼ ")}
+                    (sort.direction === "asc" ? "▲(Asc) " : "▼(Desc) ")}
                 </th>
                 <th onClick={() => handleSort("homeworld")}>
                   Homeworld
                   {sort.keyToSort === "homeworld" &&
-                    (sort.direction === "asc" ? "▲ " : "▼ ")}
+                    (sort.direction === "asc" ? "▲(Asc) " : "▼(Desc) ")}
                 </th>
               </tr>
             </thead>
             <tbody>
-              {sortedStarWarsCharacters.map((character, index) => (
+              {currentStarWarsCharacters.map((character, index) => (
                 <tr key={character.id}>
                   <td>
                     <b>{index + 1}</b>
