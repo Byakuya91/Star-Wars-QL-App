@@ -6,7 +6,7 @@
 
 // TODO:
 // 1) Modify the backend to handle errors gracefully with Try-catch(DONE)
-// 2) Implement a way to test the front-end by having the backend throw errors(ONGOING)
+// 2) Implement a way to test the front-end by having the backend throw errors(DONE)
 
 // ?OTHER FILE IMPORTS
 const { v4: uuidv4 } = require("uuid");

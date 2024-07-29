@@ -16,6 +16,13 @@ const resolvers = require("./resolvers/resolvers.js");
 // 8) Integrate the SWAPI data into the server(ONGOING).
 // 9) Connect the server to the client/ front-end of the application and correct for bugs.
 
+// ! PROBLEM: You have set up an Apollo Server for a Star Wars character application with mock data, but new entries added via the front-end were not persisted between server restarts. Initially, your backend data was stored in-memory, causing the data to be lost when the server restarted. You need to integrate a persistent storage solution, like MongoDB, to ensure that the data remains available across server sessions.
+// TODO: Implement MongoDB server
+// 1) install the Mongoose package(ONGOING)
+// 2) Setup MongoDB connection locally(ONGOING)
+// 3) Define Mongoose Model
+// 4) Update the resolvers
+// 5) Remove the mock data and test the server.
 //STEP ONE:  Create Apollo Server
 const server = new ApolloServer({
   typeDefs,
