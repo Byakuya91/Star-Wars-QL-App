@@ -9,7 +9,7 @@
 // 2) Implement a way to test the front-end by having the backend throw errors(DONE)
 
 // ?OTHER FILE IMPORTS
-const { v4: uuidv4 } = require("uuid");
+// const { v4: uuidv4 } = require("uuid");
 const Character = require("../models/Character"); // Import the Character model
 
 // ?! Variable to throw an error for exceptions testing
