@@ -10,9 +10,7 @@
 
 // ?OTHER FILE IMPORTS
 const { v4: uuidv4 } = require("uuid");
-
-// Import the array of characters from the data file
-const characters = require("../data/characters");
+const Character = require("../models/Character"); // Import the Character model
 
 // ?! Variable to throw an error for exceptions testing
 const simulateError = false; // Set to false when you want to avoid the test.
@@ -22,13 +20,12 @@ const resolvers = {
   // Define the Query resolvers
   Query: {
     //? Resolver to get all characters
-    allPeople: () => {
-      //
-      // ?! Testing when  the resolver when an error is thrown
+    allPeople: async () => {
+      // ?! Testing when the resolver when an error is thrown
       // if (simulateError) throw new Error("Data is unavailable");
       // console.log("The error's boolean is:", simulateError);
       try {
-        return characters;
+        return await Character.find(); // Fetch all characters from the database
       } catch (error) {
         console.error("Error fetching characters", error);
         throw new Error("Failed to fetch characters");
@@ -38,19 +35,12 @@ const resolvers = {
   // Define the Mutation resolvers
   Mutation: {
     //? Resolver to add a new character
-    addCharacter: (_, { name, species, homeworld }) => {
-      // ?! Testing when  the resolver when an error is thrown
+    addCharacter: async (_, { name, species, homeworld }) => {
+      // ?! Testing when the resolver when an error is thrown
       // if (simulateError) throw new Error("Intentional error for testing");
       try {
-        // ?STEP ONE: create a new object with an id
-        let id;
-        do {
-          id = uuidv4();
-        } while (characters.find((char) => char.id === id));
-        //? STEP TWO: create a new object and add it to the array.
-        const newCharacter = { id, name, species, homeworld };
-        characters.push(newCharacter);
-        return newCharacter;
+        const newCharacter = new Character({ name, species, homeworld });
+        return await newCharacter.save(); // Save the new character to the database
       } catch (error) {
         console.error("Error adding character", error);
         throw new Error("Failed to add character");
@@ -58,18 +48,15 @@ const resolvers = {
     },
 
     //? Resolver to delete a character by ID
-    deleteCharacter: (_, { id }) => {
-      // ?! Testing when  the resolver when an error is thrown
+    deleteCharacter: async (_, { id }) => {
+      // ?! Testing when the resolver when an error is thrown
       // if (simulateError) throw new Error("Intentional error for testing");
       try {
-        // STEP ONE: find the index of the character
-        const characterIndex = characters.findIndex((char) => char.id === id);
-        // STEP TWO: remove the character from the index
-        if (characterIndex > -1) {
-          const deleteCharacter = characters.splice(characterIndex, 1);
-          return deleteCharacter[0];
+        const deletedCharacter = await Character.findByIdAndDelete(id); // Delete the character from the database
+        if (!deletedCharacter) {
+          throw new Error(`Character with id ${id} not found`);
         }
-        throw new Error(`Character with id ${id} not found`);
+        return deletedCharacter;
       } catch (error) {
         console.error("Error deleting character:", error);
         throw new Error("Failed to delete character");
@@ -77,21 +64,18 @@ const resolvers = {
     },
 
     // Resolver to update a character by ID
-    updateCharacter: (_, { id, name, species, homeworld }) => {
+    updateCharacter: async (_, { id, name, species, homeworld }) => {
       // Simulate error
       // if (simulateError) throw new Error("Intentional error for testing");
       try {
-        // Find the character with the given ID
-        const singleCharacter = characters.find((char) => char.id === id);
+        const updatedCharacter = await Character.findById(id); // Find the character by ID
 
-        // If the character is found, update the fields if they are provided
-        if (singleCharacter) {
-          if (name !== undefined) singleCharacter.name = name;
-          if (species !== undefined) singleCharacter.species = species;
-          if (homeworld !== undefined) singleCharacter.homeworld = homeworld;
+        if (updatedCharacter) {
+          if (name !== undefined) updatedCharacter.name = name;
+          if (species !== undefined) updatedCharacter.species = species;
+          if (homeworld !== undefined) updatedCharacter.homeworld = homeworld;
 
-          // Return the updated character
-          return singleCharacter;
+          return await updatedCharacter.save(); // Save the updated character
         }
         throw new Error(`Character with id ${id} not found`);
       } catch (error) {
