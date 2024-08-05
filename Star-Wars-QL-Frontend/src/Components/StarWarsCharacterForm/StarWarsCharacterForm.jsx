@@ -8,7 +8,7 @@ import { ADD_STAR_WARS_CHARACTER } from "../Querries/AddStarWarsCharacter";
 import { GET_STAR_WARS_CHARACTERS } from "../Querries/StarWarsNames";
 
 //? Define the StarWarsCharacterForm component
-const StarWarsCharacterForm = () => {
+const StarWarsCharacterForm = ({ handleAddStarWarsCharacterFormClose }) => {
   // State variables for managing form input values
   const [formData, setFormData] = useState({
     name: "",

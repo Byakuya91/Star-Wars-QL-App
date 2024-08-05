@@ -14,6 +14,7 @@ import SearchBar from "../StarWarsSearchBar/SearchBar";
 import UpdateStarWarsCharactersForm from "../UpdateStarWarsCharacters/UpdateStarWarsCharactersForm";
 import Modal from "../Modal/modal";
 import StarWarsCharacterForm from "../StarWarsCharacterForm/StarWarsCharacterForm";
+import StarWarsCharacter from "../StarWarsCharacter/StarWarsCharacter";
 
 // TODOS:KEY TASKS
 // 1) Refactor query calls to include Home-world and species(DONE)
@@ -35,6 +36,10 @@ const CharacterTable = () => {
   const [showTable, setShowTable] = useState(false); // To toggle the visibility of the character table
   const [searchTerm, setSearchTerm] = useState(""); // To store the current search term for filtering
   const [showUpdateForm, setShowUpdateForm] = useState(false); // To control the visibility of the update form modal
+  // Control the visibility of Star WarsCharacter form
+  const [showAddStarWarsCharacterForm, setShowAddStarWarsCharacterForm] =
+    useState(false);
+
   const [selectedCharacter, setSelectedCharacter] = useState(null); // To store the currently selected character for updating
   const [sort, setSort] = useState({ keyToSort: "name", direction: "asc" }); // To manage the sorting state (column and direction)
   //  The current page number
@@ -141,6 +146,15 @@ const CharacterTable = () => {
     setSelectedCharacter(null); // Reset selected character
   };
 
+  // ? StarWarsCharacter modal handlers
+  const handleAddStarWarsCharacterFormOpen = () => {
+    setShowAddStarWarsCharacterForm(true);
+  };
+
+  const handleAddStarWarsCharacterFormClose = () => {
+    setShowAddStarWarsCharacterForm(false);
+  };
+
   const handleSort = (key) => {
     const direction = sort.direction === "asc" ? "desc" : "asc"; // Toggle sorting direction
     setSort({ keyToSort: key, direction }); // Update sort state
@@ -226,7 +240,17 @@ const CharacterTable = () => {
             handleSearchChange={handleSearchChange}
             clearSearchBar={handleClearSearchBar}
           />
-          <StarWarsCharacterForm />
+          <button className="btn" onClick={handleAddStarWarsCharacterFormOpen}>
+            Add Star Wars Character
+          </button>
+          <Modal
+            isOpen={showAddStarWarsCharacterForm}
+            onClose={handleAddStarWarsCharacterFormClose}
+          >
+            <StarWarsCharacterForm
+              onClose={handleAddStarWarsCharacterFormClose}
+            />
+          </Modal>
           <button className="btn" onClick={handleHideTableClick}>
             Hide Star Wars Characters
           </button>
@@ -293,15 +317,7 @@ const CharacterTable = () => {
                       Delete
                     </button>
                   </td>
-                  <td>
-                    <b>{character.name}</b>
-                  </td>
-                  <td>
-                    <b>{character.species}</b>
-                  </td>
-                  <td>
-                    <b>{character.homeworld}</b>
-                  </td>
+                  <StarWarsCharacter character={character} />
                 </tr>
               ))}
             </tbody>
