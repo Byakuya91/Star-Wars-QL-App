@@ -37,16 +37,19 @@ const CharacterTable = () => {
   const [showUpdateForm, setShowUpdateForm] = useState(false); // To control the visibility of the update form modal
   const [selectedCharacter, setSelectedCharacter] = useState(null); // To store the currently selected character for updating
   const [sort, setSort] = useState({ keyToSort: "name", direction: "asc" }); // To manage the sorting state (column and direction)
-
-  // Apollo Client and Mutation
-  const [deleteStarWarsCharacter] = useMutation(DELETE_STAR_WARS_CHARACTER); // Mutation hook for deleting characters
-  const client = useApolloClient(); // Apollo Client instance to read and write to the cache
-  // Pagimation
-
   //  The current page number
   const [currentPage, setCurrentPage] = useState(1);
   // The number of charactersPerPage
   const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  //? Apollo Client and Mutation
+  const [deleteStarWarsCharacter] = useMutation(DELETE_STAR_WARS_CHARACTER); // Mutation hook for deleting characters
+  const client = useApolloClient(); // Apollo Client instance to read and write to the cache
+  // Pagimation
+
+  // ?Test console logs
+
+  // console.log("The search term before findCharacter is:", searchTerm);
 
   //? Query to fetch characters
   const {
@@ -155,9 +158,9 @@ const CharacterTable = () => {
   const handlePreviousPage = () => {
     setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
   };
-  const handlePageChange = () => {
-    setCurrentPage(pageNumber);
-  };
+  // const handlePageChange = () => {
+  //   setCurrentPage(pageNumber);
+  // };
 
   // Use the useQuery hook to fetch data, skipping the query if showTable is false
 
