@@ -37,6 +37,7 @@ const StarWarsCharacterForm = ({ handleAddStarWarsCharacterFormClose }) => {
     onCompleted: () => {
       toast.success("New Character added!");
       setFormData({ name: "", species: "", homeworld: "" });
+      handleAddStarWarsCharacterFormClose(); // Close the modal
     },
   });
 
@@ -93,7 +94,6 @@ const StarWarsCharacterForm = ({ handleAddStarWarsCharacterFormClose }) => {
         </label>
         <button type="submit">Submit</button>
       </form>
-      <ToastContainer />
     </div>
   );
 };

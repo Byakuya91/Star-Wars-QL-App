@@ -95,6 +95,8 @@ const CharacterTable = () => {
     });
   }, []);
 
+  // ? extracting keys
+  const star_Keys = ["name", "species", "homeworld"];
   // ?Memoized list of characters filtered by the search term
   const filteredStarWarsCharacters = useMemo(() => {
     return starSearch(charactersData?.allPeople || [], searchTerm, [
@@ -248,7 +250,9 @@ const CharacterTable = () => {
             onClose={handleAddStarWarsCharacterFormClose}
           >
             <StarWarsCharacterForm
-              onClose={handleAddStarWarsCharacterFormClose}
+              handleAddStarWarsCharacterFormClose={
+                handleAddStarWarsCharacterFormClose
+              }
             />
           </Modal>
           <button className="btn" onClick={handleHideTableClick}>
