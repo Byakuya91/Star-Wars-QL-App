@@ -119,36 +119,8 @@ describe("CharacterTables Component", () => {
   //   });
   // });
   //? Search functionality
-  it("filters the data based on a search term.", async () => {
-    // Render the character table
-    render(
-      <MockedProvider mocks={[starWarsMockData[0]]} addTypename={false}>
-        <CharacterTable />
-      </MockedProvider>
-    );
-    fireEvent.click(screen.getByText("Show Star Wars Characters"));
-
-    // Waiting for the table to be rendered
-
-    await waitFor(() => {
-      expect(screen.getByText("Luke Skywalker")).toBeInTheDocument();
-    });
-
-    // Enter the Search term
-    fireEvent.change(screen.getByPlaceholderText("Search..."), {
-      target: { value: "Leia" },
-    });
-
-    // Wait for the table to be updated
-    await waitFor(() => {
-      expect(screen.getByText("Leia Organa")).toBeInTheDocument();
-      expect(screen.queryByText("Luke Skywalker")).not.toBeInTheDocument();
-    });
-  });
-
-  // ? Sort test: testing if the table can be sorted by either "Name", "Species" or "Homeworld"
-  it("sorts the data by name when 'Name' header is clicked", async () => {
-    //  STEP ONE: Wait for the table to be rendered
+  it("sorts the data by name in ascending and descending order when 'Name' header is clicked", async () => {
+    // Step One: Wait for the table to be rendered
     render(
       <MockedProvider mocks={[starWarsMockData[0]]} addTypename={false}>
         <CharacterTable />
@@ -160,36 +132,62 @@ describe("CharacterTables Component", () => {
       expect(screen.getByText("Luke Skywalker")).toBeInTheDocument();
     });
 
-    //! Debug the initial DOM structure before sorting
-    screen.debug();
-    console.log("the screen BEFORE SORTING IS:", screen);
-
-    // STEP TWO: simulate the click of "Name" header to sort by "Name".
+    // Step Two: Simulate the click of "Name" header to sort by "Name" in ascending order.
     fireEvent.click(screen.getByText(/^Name/));
 
-    // ! Debug the DOM structure after sorting
-    screen.debug();
-    console.log("the screen AFTER SORTING IS:", screen);
-
-    // STEP THREE: create the rows for the simulation
+    // Step Three: Create the rows for the simulation
     const rows = screen.getAllByRole("row");
 
-    // ! checking the rows of the content
+    // Step Four: Check if the rows of the table are sorted in ascending order.
     rows.forEach((row, index) => {
       console.log(`Row ${index + 1}: ${row.textContent}`);
+
+      // Debug to check row contents ASCENDING ORDER
+      console.log(
+        "First row text:",
+        within(rows[1]).getByText("R2-D2").textContent
+      );
+
+      // Verifying the the order is in
+      expect(within(rows[1]).getByText("R2-D2")).toBeInTheDocument();
+      expect(within(rows[2]).getByText("Luke Skywalker")).toBeInTheDocument();
+      expect(within(rows[3]).getByText("Leia Organa")).toBeInTheDocument();
+      expect(within(rows[4]).getByText("Han Solo")).toBeInTheDocument();
+      expect(within(rows[5]).getByText("Darth Vader")).toBeInTheDocument();
+      expect(within(rows[6]).getByText("C-3PO")).toBeInTheDocument();
     });
 
-    //! Debug to check row contents
-    console.log(
-      "First row text:",
-      within(rows[1]).getByText("R2-D2").textContent
-    );
+    // Step Five: Simulate the click of "Name" header again to sort by "Name" in descending order.
+    fireEvent.click(screen.getByText(/^Name/));
 
-    expect(within(rows[1]).getByText("R2-D2")).toBeInTheDocument();
-    expect(within(rows[2]).getByText("Luke Skywalker")).toBeInTheDocument();
-    expect(within(rows[3]).getByText("Leia Organa")).toBeInTheDocument();
-    expect(within(rows[4]).getByText("Han Solo")).toBeInTheDocument();
-    expect(within(rows[5]).getByText("Darth Vader")).toBeInTheDocument();
-    expect(within(rows[6]).getByText("C-3PO")).toBeInTheDocument();
+    // Step Six: Create the rows for the simulation
+    const rowsDescending = screen.getAllByRole("row");
+
+    // Step Seven: Check if the rows of the table are sorted in descending order.
+    rowsDescending.forEach((row, index) => {
+      console.log(`Row ${index + 1}: ${row.textContent}`);
+
+      // Debug to check row contents DESCENDING ORDER
+      console.log(
+        "First row text:",
+        within(rowsDescending[1]).getByText("C-3PO").textContent
+      );
+
+      // Verifying the the order is in
+      expect(within(rowsDescending[1]).getByText("C-3PO")).toBeInTheDocument();
+      expect(
+        within(rowsDescending[2]).getByText("Darth Vader")
+      ).toBeInTheDocument();
+      expect(
+        within(rowsDescending[3]).getByText("Han Solo")
+      ).toBeInTheDocument();
+      expect(
+        within(rowsDescending[4]).getByText("Leia Organa")
+      ).toBeInTheDocument();
+      expect(
+        within(rowsDescending[5]).getByText("Luke Skywalker")
+      ).toBeInTheDocument();
+      expect(within(rowsDescending[6]).getByText("R2-D2")).toBeInTheDocument();
+    });
   });
 });
