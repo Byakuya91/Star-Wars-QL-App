@@ -1,91 +1,123 @@
 // ? testing libraries
-import { render, screen, waitFor, screen } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import { MockedProvider } from "@apollo/client/testing";
 
 // ? Component imports
-import UpdateStarWarsCharacterForm from "./UpdateStarWarsCharacterForm";
+import UpdateStarWarsCharactersForm from "../UpdateStarWarsCharacters/UpdateStarWarsCharactersForm";
 
 // ? Query imports
-import { UPDATE_STAR_WARS_CHARACTER } from "../Querries/UpdateStarWarsCharacter";
+import { UPDATE_STAR_WARS_CHARACTER } from "../Querries/UpdateStarWarsData";
 
-// ?TODO:UNIT tests
-// 1. Ensure that the form is rendered correctly(ONGOING)
-//    - Check if the form renders without crashing
-//    - Verify that all input fields (Name, Species, Homeworld) are present
-//    - Verify that the Submit and Cancel buttons are present
+// ?UNIT Tests for UpdateStarWarsCharactersForm Component
+describe("UpdateStarWarsCharacterForm Component", () => {
+  // Test case 1: Rendering the form with the initial character data
+  it("renders the form with initial character data", () => {
+    const character = {
+      id: "1",
+      name: "Luke Skywalker",
+      species: { name: "Human" },
+      homeworld: { name: "Tatooine" },
+    };
 
-// 2. Ensure that the form fields are populated correctly when the component mounts
-//    - Verify that the input fields are populated with the correct values when a character prop is passed
-
-// 3. Ensure that the form fields are updated correctly when the input values change
-//    - Simulate user input in each field and verify that the state is updated correctly
-
-// 4. Ensure that the form is submitted correctly
-//    - Simulate a form submission and verify that the updateCharacter mutation is called with the correct arguments
-//    - Verify that the onCompleted callback handles success correctly
-//    - Verify that the onError callback handles errors correctly
-
-// 5. Ensure that an error message is displayed on form submission failure
-//    - Simulate a mutation error and verify that the appropriate error message is displayed using toast
-
-// 6. Ensure that the form resets after a successful submission
-//    - Simulate a successful form submission and check that the input fields are cleared
-
-// 7. Ensure that the onClose callback is triggered when the "Cancel" button is clicked
-//    - Simulate clicking the Cancel button and verify that the onClose callback is invoked
-
-// 8. Ensure that an error message is displayed when no fields are changed and the form is submitted
-//    - Submit the form without changing any fields and verify that the "No fields have been changed." error message is displayed
-
-// ?Mocking the Data
-const mockCharacter = {
-  name: "Yoda",
-  species: {
-    name: "Unknown",
-  },
-  homeworld: {
-    name: "Dagobah",
-  },
-};
-
-const mocks = [
-  {
-    request: {
-      query: UPDATE_CHARACTER,
-      variables: {
-        id: "1",
-        name: "Luke Skywalker",
-        species: "Human",
-        homeworld: "Tatooine",
-      },
-    },
-    result: {
-      data: {
-        updateCharacter: {
-          id: "1",
-          name: "Luke Skywalker",
-          species: "Human",
-          homeworld: "Tatooine",
-        },
-      },
-    },
-  },
-];
-
-describe("UpdateStarWarsCharacterForm", () => {
-  // Test that the form is rendering correctly
-  it("renders the form correctly", () => {
     render(
       <MockedProvider>
-        <UpdateStarWarsCharacterForm character={mockCharacter} />
+        <UpdateStarWarsCharactersForm character={character} />
       </MockedProvider>
     );
-    // Check that form labels are present
-    expect(screen.getByLabelText("Name:")).toBeInTheDocument();
-    expect(screen.getByLabelText("Species Name:")).toBeInTheDocument();
-    expect(screen.getByLabelText("Homeworld Name:")).toBeInTheDocument();
-    expect(screen.getByText("Submit")).toBeInTheDocument();
-    expect(screen.getByText("Cancel")).toBeInTheDocument();
+
+    expect(screen.getByDisplayValue("Luke Skywalker")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Human")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("Tatooine")).toBeInTheDocument();
+  });
+
+  it("submits the form with updated data", async () => {
+    const character = {
+      id: "1",
+      name: "Luke Skywalker",
+      species: { name: "Human" },
+      homeworld: { name: "Tatooine" },
+    };
+
+    const mocks = [
+      {
+        request: {
+          mutation: UPDATE_STAR_WARS_CHARACTER,
+          variables: {
+            id: "1",
+            name: "Darth Vader",
+            species: "Sith",
+            homeworld: "Mustafar",
+          },
+        },
+        result: {
+          data: {
+            updateCharacter: {
+              id: "1",
+              name: "Darth Vader",
+              species: "Sith",
+              homeworld: "Mustafar",
+            },
+          },
+          errors: [
+            {
+              message: "Error message",
+              locations: [
+                {
+                  line: 1,
+                  column: 1,
+                },
+              ],
+            },
+          ],
+        },
+      },
+    ];
+
+    const onUpdateMock = vi.fn();
+
+    render(
+      <MockedProvider mocks={mocks} addTypename={false}>
+        <UpdateStarWarsCharactersForm
+          character={character}
+          onUpdate={onUpdateMock}
+        />
+      </MockedProvider>
+    );
+
+    console.log("Rendered component:", screen.getByText(/Submit/i));
+
+    fireEvent.change(screen.getByDisplayValue("Luke Skywalker"), {
+      target: { value: "Darth Vader" },
+    });
+    console.log("Changed name input:", screen.getByDisplayValue("Darth Vader"));
+
+    fireEvent.change(screen.getByDisplayValue("Human"), {
+      target: { value: "Sith" },
+    });
+    console.log("Changed species input:", screen.getByDisplayValue("Sith"));
+
+    fireEvent.change(screen.getByDisplayValue("Tatooine"), {
+      target: { value: "Mustafar" },
+    });
+    console.log(
+      "Changed homeworld input:",
+      screen.getByDisplayValue("Mustafar")
+    );
+
+    fireEvent.click(screen.getByText(/Submit/i));
+    console.log("Clicked submit button");
+
+    // Wait for the mutation to be called
+    await waitFor(() => {
+      console.log("onUpdateMock called:", onUpdateMock);
+      expect(onUpdateMock).toHaveBeenCalled(); // Ensure onUpdate callback is triggered
+    });
   });
 });
