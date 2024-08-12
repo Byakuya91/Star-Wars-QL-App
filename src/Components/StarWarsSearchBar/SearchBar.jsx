@@ -13,9 +13,14 @@ const SearchBar = ({ searchTerm, handleSearchChange, clearSearchBar }) => {
         value={searchTerm}
         onChange={handleSearchChange}
         className="search-input"
+        data-testid="search-input" // Add data-testid for easier querying
       />
       {searchTerm && (
-        <button className="clear-button" onClick={clearSearchBar}>
+        <button
+          className="clear-button"
+          onClick={clearSearchBar}
+          data-testid="clear-button"
+        >
           &times;
         </button>
       )}

@@ -26,27 +26,30 @@ describe("SearchBar Component", () => {
     // Initialize the search term
     let searchTerm = "Luke";
 
-    /// Re-render the component when the searchTerm changes
-    const renderSearchBar = () =>
-      render(
-        <SearchBar
-          searchTerm={searchTerm} // Initial value of the search input
-          handleSearchChange={handleSearchChange} // Mock function to handle input changes
-          clearSearchBar={() => {
-            clearSearchBar(); // Call the mocked clearSearchBar function
-            searchTerm = ""; // Simulate clearing the search term
-            renderSearchBar(); // Re-render the SearchBar with the updated searchTerm
-          }}
-        />
-      );
-
     // Render the SearchBar component with initial props
-    renderSearchBar();
+    const { rerender } = render(
+      <SearchBar
+        searchTerm={searchTerm} // Initial value of the search input
+        handleSearchChange={handleSearchChange} // Mock function to handle input changes
+        clearSearchBar={() => {
+          clearSearchBar(); // Call the mocked clearSearchBar function
+          searchTerm = ""; // Simulate clearing the search term
+          rerender(
+            // Re-render the component with the updated searchTerm
+            <SearchBar
+              searchTerm={searchTerm}
+              handleSearchChange={handleSearchChange}
+              clearSearchBar={clearSearchBar}
+            />
+          );
+        }}
+      />
+    );
 
     console.log("SearchBar component rendered");
 
     // Get the input element by its placeholder text
-    let inputElement = screen.getAllByPlaceholderText(/search/i)[0];
+    const inputElement = screen.getByPlaceholderText(/search/i);
 
     // Log the input element's value
     console.log("Input element value before any action:", inputElement.value);
@@ -63,20 +66,20 @@ describe("SearchBar Component", () => {
     // Log the fact that the clear button was clicked
     console.log("Clear button clicked");
 
-    // Re-select the input element after clearing the search term
-    inputElement = screen.getAllByPlaceholderText(/search/i)[0];
-
-    // Log the input element's value
-    console.log(
-      "Input element value after clear button click:",
-      inputElement.value
+    // Re-render the component with updated props if needed (not always necessary if rerender handles it)
+    rerender(
+      <SearchBar
+        searchTerm={searchTerm}
+        handleSearchChange={handleSearchChange}
+        clearSearchBar={clearSearchBar}
+      />
     );
 
     // Assert that the clearSearchBar function was called once
     expect(clearSearchBar).toHaveBeenCalledTimes(1);
 
     // Assert that the input field is cleared
-    expect(inputElement.value).toBe("");
+    expect(inputElement.value).toBe(""); // After re-rendering, this should be empty
 
     console.log("Test completed successfully");
   });
