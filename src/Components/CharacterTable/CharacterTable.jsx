@@ -47,6 +47,9 @@ const CharacterTable = () => {
   // ? Store the selected character for an update
   const [selectedCharacter, setSelectedCharacter] = useState(null);
 
+  // ?Test console logs
+  console.log("The Search term currently is:", searchTerm);
+
   // Use the useQuery hook to fetch data, skipping the query if showTable is false
 
   //! Fetch data for Star Wars names
@@ -78,6 +81,7 @@ const CharacterTable = () => {
   // ?Handler: Clear the searchBar
   const handleClearSearchBar = () => {
     setSearchTerm("");
+    console.log("The Search term after hitting 'X' is:", searchTerm);
   };
 
   // ! Handlers for CRUD operations for the table
