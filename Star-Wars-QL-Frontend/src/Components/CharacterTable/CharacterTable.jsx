@@ -15,6 +15,7 @@ import UpdateStarWarsCharactersForm from "../UpdateStarWarsCharacters/UpdateStar
 import Modal from "../Modal/modal";
 import StarWarsCharacterForm from "../StarWarsCharacterForm/StarWarsCharacterForm";
 import StarWarsCharacter from "../StarWarsCharacter/StarWarsCharacter";
+import IsLoadingError from "../../../../src/Components/IsLoadingError/IsLoadingError";
 
 // TODOS:KEY TASKS
 // 1) Refactor query calls to include Home-world and species(DONE)
@@ -226,15 +227,17 @@ const CharacterTable = () => {
     }
   };
 
-  //? Conditional Rendering if the page does NOT load
-  if (charactersLoading) return <p>Loading...</p>; // Show loading indicator
-  if (charactersError) {
-    console.error("Error loading characters:", charactersError);
-    return <p>Error: {charactersError.message}</p>; // Show error message
-  }
+  // //? Conditional Rendering if the page does NOT load
+  // if (charactersLoading) return <p>Loading...</p>; // Show loading indicator
+  // if (charactersError) {
+  //   console.error("Error loading characters:", charactersError);
+  //   return <p>Error: {charactersError.message}</p>; // Show error message
+  // }
+
+  //? prepare a user friendly error message
 
   return (
-    <div>
+    <>
       {showTable ? (
         <div className="container">
           <SearchBar
@@ -264,7 +267,7 @@ const CharacterTable = () => {
               onClose={handleFormClose}
             />
           </Modal>
-          <div className="pagimation-controls">
+          <div className="pagination-controls">
             <button onClick={handlePreviousPage} disabled={itemsPerPage === 1}>
               Previous
             </button>
@@ -279,53 +282,62 @@ const CharacterTable = () => {
               Next
             </button>
           </div>
-          <table className="table-container">
-            <thead>
-              <tr>
-                <th>No.</th>
-                <th>Actions</th>
-                <th onClick={() => handleSort("name")}>
-                  Name{" "}
-                  {sort.keyToSort === "name" &&
-                    (sort.direction === "asc" ? "▲(Asc) " : "▼(Desc) ")}
-                </th>
-                <th onClick={() => handleSort("species")}>
-                  Species
-                  {sort.keyToSort === "species" &&
-                    (sort.direction === "asc" ? "▲(Asc) " : "▼(Desc) ")}
-                </th>
-                <th onClick={() => handleSort("homeworld")}>
-                  Homeworld
-                  {sort.keyToSort === "homeworld" &&
-                    (sort.direction === "asc" ? "▲(Asc) " : "▼(Desc) ")}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentStarWarsCharacters.map((character, index) => (
-                <tr key={character.id}>
-                  <td>
-                    <b>{index + 1}</b>
-                  </td>
-                  <td>
-                    <button
-                      className="update-btn"
-                      onClick={() => handleUpdateButtonClick(character)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDeleteCharacter(character)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                  <StarWarsCharacter character={character} />
+
+          {charactersLoading || charactersError ? (
+            <IsLoadingError
+              isLoading={charactersLoading}
+              isError={charactersError}
+              error={charactersError?.message}
+            />
+          ) : (
+            <table className="table-container">
+              <thead>
+                <tr>
+                  <th>No.</th>
+                  <th>Actions</th>
+                  <th onClick={() => handleSort("name")}>
+                    Name{" "}
+                    {sort.keyToSort === "name" &&
+                      (sort.direction === "asc" ? "▲(Asc) " : "▼(Desc) ")}
+                  </th>
+                  <th onClick={() => handleSort("species")}>
+                    Species
+                    {sort.keyToSort === "species" &&
+                      (sort.direction === "asc" ? "▲(Asc) " : "▼(Desc) ")}
+                  </th>
+                  <th onClick={() => handleSort("homeworld")}>
+                    Homeworld
+                    {sort.keyToSort === "homeworld" &&
+                      (sort.direction === "asc" ? "▲(Asc) " : "▼(Desc) ")}
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {currentStarWarsCharacters.map((character, index) => (
+                  <tr key={character.id}>
+                    <td>
+                      <b>{index + 1}</b>
+                    </td>
+                    <td>
+                      <button
+                        className="update-btn"
+                        onClick={() => handleUpdateButtonClick(character)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDeleteCharacter(character)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                    <StarWarsCharacter character={character} />
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       ) : (
         <div>
@@ -334,7 +346,7 @@ const CharacterTable = () => {
           </button>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
