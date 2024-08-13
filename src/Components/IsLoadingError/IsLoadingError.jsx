@@ -6,7 +6,7 @@ const IsLoadingError = ({
   isLoading,
   isError,
   error,
-  delay = 2000,
+  delay = 10000,
 }) => {
   // State variables to track loading and error states
   const [loading, setLoading] = useState(isLoading);

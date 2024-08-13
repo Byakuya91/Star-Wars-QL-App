@@ -1,213 +1,243 @@
-// ?React imports
-import React, { useState } from "react";
-
-// ? Apollo and dependency imports
-import { useQuery } from "@apollo/client";
-// ?CSS imports
-import "./CharacterTable.css";
-
-// ?Query imports
-import { GET_STAR_WARS_CHARACTERS } from "../Querries/StarWarsNames";
-import SearchBar from "../StarWarsSearchBar/SearchBar";
-import { useApolloClient } from "@apollo/client";
-
-// ? Third party imports
+// ?React Imports
+import React, { useCallback, useMemo, useState } from "react";
+// ?Apollo imports
+import { useQuery, useApolloClient, useMutation } from "@apollo/client";
+// ?Third party library imports
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
-// ! Component imports
+import "./CharacterTable.css";
+// ?Query imports
+import { GET_STAR_WARS_CHARACTERS } from "../Querries/StarWarsNames";
+import { DELETE_STAR_WARS_CHARACTER } from "../Querries/DeleteStarWarsCharacter";
+// ?Component imports
+import SearchBar from "../StarWarsSearchBar/SearchBar";
 import UpdateStarWarsCharactersForm from "../UpdateStarWarsCharacters/UpdateStarWarsCharactersForm";
 import Modal from "../Modal/modal";
+import StarWarsCharacterForm from "../StarWarsCharacterForm/StarWarsCharacterForm";
+import StarWarsCharacter from "../StarWarsCharacter/StarWarsCharacter";
+import IsLoadingError from "../../../../src/Components/IsLoadingError/IsLoadingError";
 
 // TODOS:KEY TASKS
 // 1) Refactor query calls to include Home-world and species(DONE)
 // 2) Render out the data onto the table(DONE)
 // 3) Set the Stage for the filtering application of the table, based on NAME,SPECIES, and HOMEWORLD(DONE)
 // 4) Update the data:
-// 4A) Create UpdateCharacters component
-// 4B) Create a query to handle updating the data(DO RESEARCH)
-// 4C) Hook up the buttons
+// 4A) Create UpdateCharacters component(DONE)
+// 4B) Create a query to handle updating the data(DONE)
+// 4C) Hook up the buttons(DONE)
+// 5) ADD Sort function to sort the table based on alphabetically or fields like name and species(DONE)
 
 // TODOS: supplementary tasks
 // 1) Theme and Dark theme toggler(ONGOING)
 
-// This is a new update
+// Pagimation
 
 const CharacterTable = () => {
-  //  ? Defining keys based on the fields for the table
-  const Star_keys = ["name", "species.name", "homeworld.name"];
-
   // ? Pieces of states
-  // ? Toggling the table view
-  const [showTable, setShowTable] = useState(false);
-  // ? SearchBar results state
-  const [searchTerm, setSearchTerm] = useState("");
-  // ? visibility of the update character form
-  const [showUpdateForm, setShowUpdateForm] = useState(false);
-  // ? Store the selected character for an update
-  const [selectedCharacter, setSelectedCharacter] = useState(null);
+  const [showTable, setShowTable] = useState(false); // To toggle the visibility of the character table
+  const [searchTerm, setSearchTerm] = useState(""); // To store the current search term for filtering
+  const [showUpdateForm, setShowUpdateForm] = useState(false); // To control the visibility of the update form modal
+  // Control the visibility of Star WarsCharacter form
+  const [showAddStarWarsCharacterForm, setShowAddStarWarsCharacterForm] =
+    useState(false);
+
+  const [selectedCharacter, setSelectedCharacter] = useState(null); // To store the currently selected character for updating
+  const [sort, setSort] = useState({ keyToSort: "name", direction: "asc" }); // To manage the sorting state (column and direction)
+  //  The current page number
+  const [currentPage, setCurrentPage] = useState(1);
+  // The number of charactersPerPage
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+
+  //? Apollo Client and Mutation
+  const [deleteStarWarsCharacter] = useMutation(DELETE_STAR_WARS_CHARACTER); // Mutation hook for deleting characters
+  const client = useApolloClient(); // Apollo Client instance to read and write to the cache
+  // Pagimation
 
   // ?Test console logs
-  console.log("The Search term currently is:", searchTerm);
 
-  // Use the useQuery hook to fetch data, skipping the query if showTable is false
+  // console.log("The search term before findCharacter is:", searchTerm);
 
-  //! Fetch data for Star Wars names
+  //? Query to fetch characters
   const {
     loading: charactersLoading,
     error: charactersError,
     data: charactersData,
     refetch,
   } = useQuery(GET_STAR_WARS_CHARACTERS, {
-    skip: !showTable, // Skip the query if showTable is false
-    //  ?Attempting to solve stale cache
+    skip: !showTable, // Skip the query if the table is not shown
   });
 
-  // ! Handler functions
-  // ? Showing and hiding the table
+  //? Function to check if a character matches the search term
+  const findCharacter = (item, searchTerm, keys) => {
+    return keys.some((key) => {
+      const value = item[key];
+      return (
+        typeof value === "string" &&
+        value.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
+  };
+
+  // ?Memoized function to filter characters based on the search term
+  const starSearch = useCallback((data, searchTerm, keys) => {
+    return data.filter((item) => findCharacter(item, searchTerm, keys));
+  }, []);
+
+  //? Memoized function to sort characters by a given key and direction
+  const sortData = useCallback((data, keyToSort, direction) => {
+    return data.slice().sort((a, b) => {
+      const aValue = a[keyToSort].toLowerCase();
+      const bValue = b[keyToSort].toLowerCase();
+      if (direction === "asc") {
+        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
+      } else {
+        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
+      }
+    });
+  }, []);
+
+  // ? extracting keys
+  const star_Keys = ["name", "species", "homeworld"];
+  // ?Memoized list of characters filtered by the search term
+  const filteredStarWarsCharacters = useMemo(() => {
+    return starSearch(charactersData?.allPeople || [], searchTerm, [
+      "name",
+      "species",
+      "homeworld",
+    ]);
+  }, [charactersData?.allPeople, searchTerm, starSearch]);
+
+  //? Memoized list of characters sorted by the current sort state
+  const { keyToSort, direction } = sort;
+  const sortedStarWarsCharacters = useMemo(() => {
+    return sortData(filteredStarWarsCharacters, keyToSort, direction);
+  }, [filteredStarWarsCharacters, keyToSort, direction, sortData]);
+
+  //? Pagimation logic: Calculate the indices to slice data
+  const indexOfLastStarWarsCharacter = currentPage * itemsPerPage;
+  const indexOfFirstStarWarsCharacter =
+    indexOfLastStarWarsCharacter - itemsPerPage;
+  const currentStarWarsCharacters = sortedStarWarsCharacters.slice(
+    indexOfFirstStarWarsCharacter,
+    indexOfLastStarWarsCharacter
+  );
+
+  //? Event Handlers
   const handleShowTableClick = () => {
-    setShowTable(true); // Set showTable to true when the button is clicked
+    setShowTable(true); // Show the table of characters
   };
 
   const handleHideTableClick = () => {
-    setShowTable(false); // Set showTable to false when the "Hide" button is clicked
+    setShowTable(false); // Hide the table of characters
   };
 
-  // ? Handler: Changing the search term
   const handleSearchChange = (e) => {
-    setSearchTerm(e.target.value);
+    setSearchTerm(e.target.value); // Update search term based on input field
   };
 
-  // ?Handler: Clear the searchBar
   const handleClearSearchBar = () => {
-    setSearchTerm("");
-    console.log("The Search term after hitting 'X' is:", searchTerm);
+    setSearchTerm(""); // Clear the search term
   };
 
-  // ! Handlers for CRUD operations for the table
-  // ? Handler: show the update form
   const handleUpdateButtonClick = (character) => {
-    // console.log("The character is:", character);
-    setSelectedCharacter(character);
-    // console.log("The state of show Update form is:",showUpdateForm);
-    setShowUpdateForm(true);
-    // console.log("The state of show Update form when the button is pushed is:", showUpdateForm);
+    setSelectedCharacter(character); // Set the selected character for updating
+    setShowUpdateForm(true); // Show the update form modal
   };
 
-  // ? Handler: Opening and closing the form
   const handleFormClose = () => {
-    setShowUpdateForm(false);
-    setSelectedCharacter(null);
+    setShowUpdateForm(false); // Close the update form modal
+    setSelectedCharacter(null); // Reset selected character
   };
 
-  // Inside the functional component
-  const client = useApolloClient();
+  // ? StarWarsCharacter modal handlers
+  const handleAddStarWarsCharacterFormOpen = () => {
+    setShowAddStarWarsCharacterForm(true);
+  };
 
-  // ? Handling the deletion of a character.
-  const handleDeleteCharacter = (character) => {
-    //? Testing the button if it works(IT WORKS)
-    // console.log("Deleting character:", character);
+  const handleAddStarWarsCharacterFormClose = () => {
+    setShowAddStarWarsCharacterForm(false);
+  };
 
-    //? STEP ONE: remove the character from local state or cache
-    const updatedCharacters = charactersData.allPeople.people.filter(
-      (char) => char.id !== character.id
+  const handleSort = (key) => {
+    const direction = sort.direction === "asc" ? "desc" : "asc"; // Toggle sorting direction
+    setSort({ keyToSort: key, direction }); // Update sort state
+  };
+
+  //? Pagimation handlers
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) =>
+      Math.min(
+        prevPage + 1,
+        Math.ceil(sortedStarWarsCharacters.length / itemsPerPage)
+      )
     );
-    // ! FIRST ATTEMPT FAILED
-    // ?STEP TWO: Create a new object with the updated people array(DOES NOT WORK. "People" is read Only)
-    // Create a new object with updated people array
-    // const updatedAllPeople = {
-    //   ...charactersData.allPeople,
-    //   people: updatedCharacters,
-    // };
-
-    // ?STEP THREE: Update charactersData with the filtered list of characters(DOES NOT WORK. "People" is read only.)
-    // You can directly modify the charactersData state variable to update the list of characters
-    // charactersData.allPeople.people = updatedAllPeople;
-    //? STEP TWO Update the cache with the updated data
-    // My first step does NOT WORK
-
-    // ! //(WORKING) Update the cache with the updated data
-    client.writeQuery({
-      query: GET_STAR_WARS_CHARACTERS, // The query used to fetch the data
-      data: {
-        allPeople: {
-          ...charactersData.allPeople,
-          people: updatedCharacters,
-        },
-      },
-    });
-
-    // ? Alerting  the user that the character is deleted.
-    toast.error("Character successfully deleted!");
   };
-
-  // USING MOCK DATA to fill in the table and get a sense of what it looks like
-  // const mockData = {
-  //   allPeople: {
-  //     people: [
-  //       { name: 'Luke Skywalker' },
-  //       { name: 'Han Solo' },
-  //       { name: 'Princess Leia' },
-  //       { name: 'Chewbacca' },
-  //       { name: 'Darth Vader' },
-  //       { name: 'Lando' },
-  //       { name: 'C-3PO' },
-  //       { name: 'R2-D2' },
-  //       // Add more sample data as needed
-  //     ]
-  //   }
+  const handlePreviousPage = () => {
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
+  };
+  // const handlePageChange = () => {
+  //   setCurrentPage(pageNumber);
   // };
 
-  // TODO: Create a search function for the filtered results
-  const starSearch = (data) => {
-    return data.filter((item) =>
-      //  ? For each item, check if one of the Star_Keys contains the search term
-      Star_keys.some((key) => {
-        // Split the keys to handle nested properties
-        const keys = key.split(".");
-        // Start with the current item
-        let value = item;
-        // Traverse the nested properties
-        keys.forEach((k) => {
-          value = value && value[k];
-        });
-        // Check if the final value exists and contains the searchTerm
-        return (
-          typeof value === "string" &&
-          value.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      })
-    );
+  // Use the useQuery hook to fetch data, skipping the query if showTable is false
+
+  // TODO: Sorting Capabilities(DONE)
+  // 1) handler function to "sort" the state whenever a column header is CLICKED.(DONE)
+  // 2) a function to sort the data based on the key(DONE)
+  // 3) implementing the data into the table(ONGOING)
+  // 3A) test the "asc" and "desc" handler function(DONE)
+  //  3B) implement the buttons into the headers on JSX(DONE)
+  // 3C) hook up the sortedStarWarsCharacters into the table(DONE)
+
+  // TODO: Pagimantion(ONGOING)
+  // 1)Establish pieces of state(DONE)
+  // 2)handler functions to operate the buttons to shift pages(DONE)
+  // 3)Calculate the Pagimated data for each page(DONE)
+  // 4)Render the Pagimation controls(DONE)
+
+  // Function to handle character deletion
+  const handleDeleteCharacter = async (character) => {
+    try {
+      await deleteStarWarsCharacter({
+        variables: { id: character.id },
+      });
+
+      // Update the Apollo Client cache
+      const cachedData = client.readQuery({
+        query: GET_STAR_WARS_CHARACTERS,
+      });
+
+      if (!cachedData) return;
+
+      const updatedCharacters = cachedData.allPeople.filter(
+        (char) => char.id !== character.id
+      );
+
+      client.writeQuery({
+        query: GET_STAR_WARS_CHARACTERS,
+        data: {
+          allPeople: updatedCharacters,
+        },
+      });
+
+      toast.success("Character successfully deleted!"); // Show success toast
+    } catch (error) {
+      console.error("Error deleting character:", error);
+      toast.error("Failed to delete character."); // Show error toast
+    }
   };
 
-  // OLD CODE
-  // if (!showTable) {
-  //   return (
-  //     <div>
-  //       <button onClick={handleShowTableClick}>Show Star Wars Characters</button>
-  //     </div>
-  //   );
+  // //? Conditional Rendering if the page does NOT load
+  // if (charactersLoading) return <p>Loading...</p>; // Show loading indicator
+  // if (charactersError) {
+  //   console.error("Error loading characters:", charactersError);
+  //   return <p>Error: {charactersError.message}</p>; // Show error message
   // }
 
-  // Trying to make a tenary operation for the code
-  //  showTable ?
-
-  // ? In case the data does NOT load for Names, Species and Homeworld
-  if (charactersLoading) return <p>Loading...</p>;
-
-  if (charactersError) return <p>Error: {charactersError.message} </p>;
-
-  //!  Create the filtered data that will be used by the new Map
-  const filteredStarWarsCharacters =
-    charactersData &&
-    charactersData.allPeople &&
-    charactersData.allPeople.people
-      ? starSearch(charactersData.allPeople.people)
-      : [];
+  //? prepare a user friendly error message
 
   return (
-    <div>
-      {/* <Modal /> */}
+    <>
       {showTable ? (
         <div className="container">
           <SearchBar
@@ -215,69 +245,99 @@ const CharacterTable = () => {
             handleSearchChange={handleSearchChange}
             clearSearchBar={handleClearSearchBar}
           />
+          <button className="btn" onClick={handleAddStarWarsCharacterFormOpen}>
+            Add Star Wars Character
+          </button>
+          <Modal
+            isOpen={showAddStarWarsCharacterForm}
+            onClose={handleAddStarWarsCharacterFormClose}
+          >
+            <StarWarsCharacterForm
+              handleAddStarWarsCharacterFormClose={
+                handleAddStarWarsCharacterFormClose
+              }
+            />
+          </Modal>
           <button className="btn" onClick={handleHideTableClick}>
             Hide Star Wars Characters
           </button>
-          {showUpdateForm && (
+          <Modal isOpen={showUpdateForm} onClose={handleFormClose}>
             <UpdateStarWarsCharactersForm
               character={selectedCharacter}
               onClose={handleFormClose}
             />
-          )}
-          <table className="table-container">
-            <thead>
-              <tr>
-                <th>No.</th>
-                <th>Actions</th> {/* Add a new header for the Update button */}
-                <th>Name</th>
-                <th>Species</th>
-                <th>Homeworld</th>
-                {/* <th>id</th> */}
-              </tr>
-            </thead>
-            <tbody>
-              {filteredStarWarsCharacters.map((character, index) => (
-                <tr key={index}>
-                  <td>
-                    <b>{index + 1}</b>
-                  </td>{" "}
-                  {/* Display the index starting from 1 */}
-                  <td>
-                    <button
-                      className="update-btn"
-                      onClick={() => handleUpdateButtonClick(character)}
-                    >
-                      Update
-                    </button>
-                    <button
-                      className="delete-btn"
-                      onClick={() => handleDeleteCharacter(character)}
-                    >
-                      Delete
-                    </button>
-                  </td>
-                  <td>
-                    <b>{character.name}</b>
-                  </td>
-                  <td>
-                    <b>
-                      {character.species ? character.species.name : "Unknown"}
-                    </b>
-                  </td>
-                  <td>
-                    <b>
-                      {character.homeworld
-                        ? character.homeworld.name
-                        : "Unknown"}
-                    </b>
-                  </td>
-                  {/* <td>{character.id}</td> */}
+          </Modal>
+          <div className="pagination-controls">
+            <button onClick={handlePreviousPage} disabled={itemsPerPage === 1}>
+              Previous
+            </button>
+            <span>Page {currentPage}</span>
+            <button
+              onClick={handleNextPage}
+              disabled={
+                currentPage ===
+                Math.ceil(sortedStarWarsCharacters.length / itemsPerPage)
+              }
+            >
+              Next
+            </button>
+          </div>
+
+          {charactersLoading || charactersError ? (
+            <IsLoadingError
+              isLoading={charactersLoading}
+              isError={charactersError}
+              error={charactersError?.message}
+            />
+          ) : (
+            <table className="table-container">
+              <thead>
+                <tr>
+                  <th>No.</th>
+                  <th>Actions</th>
+                  <th onClick={() => handleSort("name")}>
+                    Name{" "}
+                    {sort.keyToSort === "name" &&
+                      (sort.direction === "asc" ? "▲(Asc) " : "▼(Desc) ")}
+                  </th>
+                  <th onClick={() => handleSort("species")}>
+                    Species
+                    {sort.keyToSort === "species" &&
+                      (sort.direction === "asc" ? "▲(Asc) " : "▼(Desc) ")}
+                  </th>
+                  <th onClick={() => handleSort("homeworld")}>
+                    Homeworld
+                    {sort.keyToSort === "homeworld" &&
+                      (sort.direction === "asc" ? "▲(Asc) " : "▼(Desc) ")}
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          {/* <UpdateStarWarsCharactersForm  character={selectedCharacter}/> */}
-          {/* Render the update form if showUpdateForm is true */}
+              </thead>
+              <tbody>
+                {currentStarWarsCharacters.map((character, index) => (
+                  <tr key={character.id}>
+                    <td>
+                      <b>{index + 1}</b>
+                    </td>
+                    <td>
+                      <button
+                        className="update-btn"
+                        onClick={() => handleUpdateButtonClick(character)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="delete-btn"
+                        onClick={() => handleDeleteCharacter(character)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                    <StarWarsCharacter character={character} />
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       ) : (
         <div>
@@ -286,7 +346,7 @@ const CharacterTable = () => {
           </button>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
