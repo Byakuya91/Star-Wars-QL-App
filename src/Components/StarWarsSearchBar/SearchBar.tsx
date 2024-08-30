@@ -2,9 +2,21 @@ import React from "react";
 // ? CSS imports
 import "../StarWarsSearchBar/SearchBar.css";
 
+// TODO: refactor the the SearchBar component to be more in line with typescript
+
+// Define prop types
+interface SearchBarProps {
+  searchTerm: string;
+  handleSearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  clearSearchBar: () => void;
+}
+
 // New update
-const SearchBar = ({ searchTerm, handleSearchChange, clearSearchBar }) => {
-  // console.log("The Search is: ", searchTerm);
+const SearchBar: React.FC<SearchBarProps> = ({
+  searchTerm,
+  handleSearchChange,
+  clearSearchBar,
+}) => {
   return (
     <div className="search-bar">
       <input
