@@ -1,16 +1,33 @@
 // React and Apollo imports
 import React, { useState } from "react";
 import { useMutation } from "@apollo/client";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 
 //? Query imports
 import { ADD_STAR_WARS_CHARACTER } from "../Querries/AddStarWarsCharacter";
 import { GET_STAR_WARS_CHARACTERS } from "../Querries/StarWarsNames";
 
+// TODO: refactor the form component to be more in line with typescript(ONGOING)
+// Define type interface
+
+// ? StarWarsCharacterFormProps
+interface StarWarsCharacterFormProps {
+  handleAddStarWarsCharacterFormClose: () => void;
+}
+
+// ? FormData
+interface FormData {
+  name: string;
+  species: string;
+  homeworld: string;
+}
+
 //? Define the StarWarsCharacterForm component
-const StarWarsCharacterForm = ({ handleAddStarWarsCharacterFormClose }) => {
+const StarWarsCharacterForm: React.FC<StarWarsCharacterFormProps> = ({
+  handleAddStarWarsCharacterFormClose,
+}) => {
   // State variables for managing form input values
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     species: "",
     homeworld: "",
@@ -19,7 +36,7 @@ const StarWarsCharacterForm = ({ handleAddStarWarsCharacterFormClose }) => {
   // useMutation hook for the ADD_STAR_WARS_CHARACTER mutation
   const [addStarWarsCharacter] = useMutation(ADD_STAR_WARS_CHARACTER, {
     update(cache, { data: { addCharacter } }) {
-      const { allPeople } = cache.readQuery({
+      const { allPeople } = cache.readQuery<{ allPeople: FormData[] }>({
         query: GET_STAR_WARS_CHARACTERS,
       }) || { allPeople: [] };
 
@@ -42,13 +59,13 @@ const StarWarsCharacterForm = ({ handleAddStarWarsCharacterFormClose }) => {
   });
 
   // Handle form input changes
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
 
   // Form submission handler
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { name, species, homeworld } = formData;
     try {

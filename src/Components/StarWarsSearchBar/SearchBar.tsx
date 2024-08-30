@@ -2,7 +2,7 @@ import React from "react";
 // ? CSS imports
 import "../StarWarsSearchBar/SearchBar.css";
 
-// TODO: refactor the the SearchBar component to be more in line with typescript
+// TODO: refactor the the SearchBar component to be more in line with typescript(DONE)
 
 // Define prop types
 interface SearchBarProps {

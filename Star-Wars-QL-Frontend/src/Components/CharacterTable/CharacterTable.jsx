@@ -12,8 +12,8 @@ import { DELETE_STAR_WARS_CHARACTER } from "../Querries/DeleteStarWarsCharacter"
 // ?Component imports
 import SearchBar from "../StarWarsSearchBar/SearchBar";
 import UpdateStarWarsCharactersForm from "../UpdateStarWarsCharacters/UpdateStarWarsCharactersForm";
-import Modal from "../Modal/modal";
-import StarWarsCharacterForm from "../StarWarsCharacterForm/StarWarsCharacterForm";
+import Modal from "../Modal/modal.tsx";
+import StarWarsCharacterForm from "../StarWarsCharacterForm/StarWarsCharacterForm.tsx";
 import StarWarsCharacter from "../StarWarsCharacter/StarWarsCharacter";
 import IsLoadingError from "../../../../src/Components/IsLoadingError/IsLoadingError";
 
