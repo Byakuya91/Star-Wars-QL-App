@@ -20,7 +20,7 @@ describe("SearchBar Component", () => {
     console.log("Starting test: renders search bar and clears input");
 
     // Create mock functions to pass as props to the SearchBar component
-    const handleSearchChange = vi.fn(); // Use `vi.fn()` instead of `jest.fn()`
+    const handleSearchChange = vi.fn();
     const clearSearchBar = vi.fn();
 
     // Initialize the search term
