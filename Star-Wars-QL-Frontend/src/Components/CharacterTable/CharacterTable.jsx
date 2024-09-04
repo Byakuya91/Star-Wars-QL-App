@@ -10,11 +10,11 @@ import "./CharacterTable.css";
 import { GET_STAR_WARS_CHARACTERS } from "../Querries/StarWarsNames";
 import { DELETE_STAR_WARS_CHARACTER } from "../Querries/DeleteStarWarsCharacter";
 // ?Component imports
-import SearchBar from "../StarWarsSearchBar/SearchBar";
+import SearchBar from "../StarWarsSearchBar/SearchBar.tsx";
 import UpdateStarWarsCharactersForm from "../UpdateStarWarsCharacters/UpdateStarWarsCharactersForm";
 import Modal from "../Modal/modal.tsx";
 import StarWarsCharacterForm from "../StarWarsCharacterForm/StarWarsCharacterForm.tsx";
-import StarWarsCharacter from "../StarWarsCharacter/StarWarsCharacter";
+import StarWarsCharacter from "../StarWarsCharacter/StarWarsCharacter.tsx";
 import IsLoadingError from "../../../../src/Components/IsLoadingError/IsLoadingError";
 
 // TODOS:KEY TASKS
