@@ -11,11 +11,11 @@ import { GET_STAR_WARS_CHARACTERS } from "../Querries/StarWarsNames";
 import { DELETE_STAR_WARS_CHARACTER } from "../Querries/DeleteStarWarsCharacter";
 // ?Component imports
 import SearchBar from "../StarWarsSearchBar/SearchBar.tsx";
-import UpdateStarWarsCharactersForm from "../UpdateStarWarsCharacters/UpdateStarWarsCharactersForm";
+import UpdateStarWarsCharactersForm from "../UpdateStarWarsCharacters/UpdateStarWarsCharactersForm.tsx";
 import Modal from "../Modal/modal.tsx";
 import StarWarsCharacterForm from "../StarWarsCharacterForm/StarWarsCharacterForm.tsx";
 import StarWarsCharacter from "../StarWarsCharacter/StarWarsCharacter.tsx";
-import IsLoadingError from "../../../../src/Components/IsLoadingError/IsLoadingError";
+import IsLoadingError from "../../../../src/Components/IsLoadingError/IsLoadingError.tsx";
 
 // TODOS:KEY TASKS
 // 1) Refactor query calls to include Home-world and species(DONE)

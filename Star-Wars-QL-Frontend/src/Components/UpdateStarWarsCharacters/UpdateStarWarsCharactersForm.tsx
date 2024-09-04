@@ -4,13 +4,32 @@ import { UPDATE_CHARACTER } from "../Querries/UpdateStarWarsData";
 import { GET_STAR_WARS_CHARACTERS } from "../Querries/StarWarsNames";
 import { toast, ToastContainer } from "react-toastify";
 
+// Define types for the character prop
+interface CharacterType {
+  id: string;
+  name: string;
+  species?: { name: string };
+  homeworld?: { name: string };
+}
+
+// Define types for the component props
+interface UpdateStarWarsCharactersFormProps {
+  character: CharacterType;
+  onUpdate?: () => void;
+  onClose: () => void;
+}
+
 // Define the UpdateStarWarsCharactersForm component
-const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
+const UpdateStarWarsCharactersForm: React.FC<
+  UpdateStarWarsCharactersFormProps
+> = ({ character, onUpdate, onClose }) => {
   // State variables to manage the original and updated character details
-  const [originalCharacter, setOriginalCharacter] = useState({});
-  const [name, setName] = useState("");
-  const [species, setSpecies] = useState("");
-  const [homeworld, setHomeworld] = useState("");
+  const [originalCharacter, setOriginalCharacter] = useState<
+    CharacterType | {}
+  >({});
+  const [name, setName] = useState<string>("");
+  const [species, setSpecies] = useState<string>("");
+  const [homeworld, setHomeworld] = useState<string>("");
 
   // useMutation hook for the UPDATE_CHARACTER mutation
   const [updateCharacter] = useMutation(UPDATE_CHARACTER, {
@@ -23,8 +42,8 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
     onCompleted: (data) => {
       if (data.updateCharacter) {
         toast.success("Character updated successfully!"); // Display success notification
-        if (typeof onUpdate === "function") onUpdate(); // Call onUpdate callback if provided
-        if (typeof onClose === "function") onClose(); // Call onClose callback if provided
+        if (onUpdate) onUpdate(); // Call onUpdate callback if provided
+        onClose(); // Call onClose callback
       } else {
         toast.error("Character not found."); // Display error notification if character not found
       }
@@ -33,7 +52,9 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
     update: (cache, { data: { updateCharacter } }) => {
       try {
         // Read the existing characters from the cache
-        const existingData = cache.readQuery({
+        const existingData = cache.readQuery<{
+          allPeople: { people: CharacterType[] };
+        }>({
           query: GET_STAR_WARS_CHARACTERS,
         });
 
@@ -85,10 +106,10 @@ const UpdateStarWarsCharactersForm = ({ character, onUpdate, onClose }) => {
   }, [character]);
 
   // Handle form submission to update the character's details
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const updatedFields = {};
+    const updatedFields: Partial<CharacterType> = {};
 
     if (name !== originalCharacter.name) {
       updatedFields.name = name;
