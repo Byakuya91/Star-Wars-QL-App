@@ -1,74 +1,67 @@
-// ?React Imports
 import React, { useCallback, useMemo, useState } from "react";
-// ?Apollo imports
 import { useQuery, useApolloClient, useMutation } from "@apollo/client";
-// ?Third party library imports
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./CharacterTable.css";
-// ?Query imports
 import { GET_STAR_WARS_CHARACTERS } from "../Querries/StarWarsNames";
 import { DELETE_STAR_WARS_CHARACTER } from "../Querries/DeleteStarWarsCharacter";
-// ?Component imports
-import SearchBar from "../StarWarsSearchBar/SearchBar.tsx";
-import UpdateStarWarsCharactersForm from "../UpdateStarWarsCharacters/UpdateStarWarsCharactersForm.tsx";
-import Modal from "../Modal/modal.tsx";
-import StarWarsCharacterForm from "../StarWarsCharacterForm/StarWarsCharacterForm.tsx";
-import StarWarsCharacter from "../StarWarsCharacter/StarWarsCharacter.tsx";
-import IsLoadingError from "../../../../src/Components/IsLoadingError/IsLoadingError.tsx";
+import SearchBar from "../StarWarsSearchBar/SearchBar";
+import UpdateStarWarsCharactersForm from "../UpdateStarWarsCharacters/UpdateStarWarsCharactersForm";
+import Modal from "../Modal/modal";
+import StarWarsCharacterForm from "../StarWarsCharacterForm/StarWarsCharacterForm";
+import StarWarsCharacter from "../StarWarsCharacter/StarWarsCharacter";
+import IsLoadingError from "../../../../src/Components/IsLoadingError/IsLoadingError";
 
-// TODOS:KEY TASKS
-// 1) Refactor query calls to include Home-world and species(DONE)
-// 2) Render out the data onto the table(DONE)
-// 3) Set the Stage for the filtering application of the table, based on NAME,SPECIES, and HOMEWORLD(DONE)
-// 4) Update the data:
-// 4A) Create UpdateCharacters component(DONE)
-// 4B) Create a query to handle updating the data(DONE)
-// 4C) Hook up the buttons(DONE)
-// 5) ADD Sort function to sort the table based on alphabetically or fields like name and species(DONE)
+// Defining Types for Star Wars Characters
+interface StarWarsCharacterData {
+  id: string;
+  name: string;
+  species: string;
+  homeworld: string;
+}
 
-// TODOS: supplementary tasks
-// 1) Theme and Dark theme toggler(ONGOING)
+interface QueryData {
+  allPeople: StarWarsCharacterData[];
+}
 
-// Pagimation
-
-const CharacterTable = () => {
+const CharacterTable: React.FC = () => {
   // ? Pieces of states
-  const [showTable, setShowTable] = useState(false); // To toggle the visibility of the character table
-  const [searchTerm, setSearchTerm] = useState(""); // To store the current search term for filtering
-  const [showUpdateForm, setShowUpdateForm] = useState(false); // To control the visibility of the update form modal
-  // Control the visibility of Star WarsCharacter form
+  const [showTable, setShowTable] = useState<boolean>(false); // To toggle the visibility of the character table
+  const [searchTerm, setSearchTerm] = useState<string>(""); // To store the current search term for filtering
+  const [showUpdateForm, setShowUpdateForm] = useState<boolean>(false); // To control the visibility of the update form modal
   const [showAddStarWarsCharacterForm, setShowAddStarWarsCharacterForm] =
-    useState(false);
+    useState<boolean>(false); // Control the visibility of Star WarsCharacter form
+  const [selectedCharacter, setSelectedCharacter] =
+    useState<StarWarsCharacterData | null>(null); // To store the currently selected character for updating
+  const [sort, setSort] = useState<{
+    keyToSort: keyof StarWarsCharacterData;
+    direction: "asc" | "desc";
+  }>({
+    keyToSort: "name",
+    direction: "asc",
+  }); // To manage the sorting state (column and direction)
+  const [currentPage, setCurrentPage] = useState<number>(1); // The current page number
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10); // The number of characters per page
 
-  const [selectedCharacter, setSelectedCharacter] = useState(null); // To store the currently selected character for updating
-  const [sort, setSort] = useState({ keyToSort: "name", direction: "asc" }); // To manage the sorting state (column and direction)
-  //  The current page number
-  const [currentPage, setCurrentPage] = useState(1);
-  // The number of charactersPerPage
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-
-  //? Apollo Client and Mutation
+  // ? Apollo Client and Mutation
   const [deleteStarWarsCharacter] = useMutation(DELETE_STAR_WARS_CHARACTER); // Mutation hook for deleting characters
   const client = useApolloClient(); // Apollo Client instance to read and write to the cache
-  // Pagimation
 
-  // ?Test console logs
-
-  // console.log("The search term before findCharacter is:", searchTerm);
-
-  //? Query to fetch characters
+  // ? Query to fetch characters
   const {
     loading: charactersLoading,
     error: charactersError,
     data: charactersData,
-    refetch,
-  } = useQuery(GET_STAR_WARS_CHARACTERS, {
+  } = useQuery<QueryData>(GET_STAR_WARS_CHARACTERS, {
     skip: !showTable, // Skip the query if the table is not shown
   });
 
-  //? Function to check if a character matches the search term
-  const findCharacter = (item, searchTerm, keys) => {
+  // ? Function to check if a character matches the search term
+  const findCharacter = (
+    item: StarWarsCharacterData,
+    searchTerm: string,
+    keys: (keyof StarWarsCharacterData)[]
+  ) => {
     return keys.some((key) => {
       const value = item[key];
       return (
@@ -78,42 +71,63 @@ const CharacterTable = () => {
     });
   };
 
-  // ?Memoized function to filter characters based on the search term
-  const starSearch = useCallback((data, searchTerm, keys) => {
-    return data.filter((item) => findCharacter(item, searchTerm, keys));
-  }, []);
+  // ? Memoized function to filter characters based on search term
+  const starSearch = useCallback(
+    (
+      data: StarWarsCharacterData[],
+      searchTerm: string,
+      keys: (keyof StarWarsCharacterData)[]
+    ) => {
+      return data.filter((item) => findCharacter(item, searchTerm, keys));
+    },
+    []
+  );
 
-  //? Memoized function to sort characters by a given key and direction
-  const sortData = useCallback((data, keyToSort, direction) => {
-    return data.slice().sort((a, b) => {
-      const aValue = a[keyToSort].toLowerCase();
-      const bValue = b[keyToSort].toLowerCase();
-      if (direction === "asc") {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-      } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
-      }
-    });
-  }, []);
+  // ? Memoized function to sort characters by a given key and direction
+  const sortData = useCallback(
+    (
+      data: StarWarsCharacterData[],
+      keyToSort: keyof StarWarsCharacterData,
+      direction: "asc" | "desc"
+    ) => {
+      return data.slice().sort((a, b) => {
+        const aValue = a[keyToSort].toLowerCase();
+        const bValue = b[keyToSort].toLowerCase();
+        return direction === "asc"
+          ? aValue < bValue
+            ? -1
+            : aValue > bValue
+            ? 1
+            : 0
+          : aValue > bValue
+          ? -1
+          : aValue < bValue
+          ? 1
+          : 0;
+      });
+    },
+    []
+  );
 
-  // ? extracting keys
-  const star_Keys = ["name", "species", "homeworld"];
-  // ?Memoized list of characters filtered by the search term
+  // ? Extracting keys
+  const star_Keys: (keyof StarWarsCharacterData)[] = [
+    "name",
+    "species",
+    "homeworld",
+  ];
+
+  // ? Memoized list of characters filtered by the search term
   const filteredStarWarsCharacters = useMemo(() => {
-    return starSearch(charactersData?.allPeople || [], searchTerm, [
-      "name",
-      "species",
-      "homeworld",
-    ]);
+    return starSearch(charactersData?.allPeople || [], searchTerm, star_Keys);
   }, [charactersData?.allPeople, searchTerm, starSearch]);
 
-  //? Memoized list of characters sorted by the current sort state
+  // ? Memoized list of characters sorted by the current sort state
   const { keyToSort, direction } = sort;
   const sortedStarWarsCharacters = useMemo(() => {
     return sortData(filteredStarWarsCharacters, keyToSort, direction);
   }, [filteredStarWarsCharacters, keyToSort, direction, sortData]);
 
-  //? Pagimation logic: Calculate the indices to slice data
+  // ? Pagination logic: Calculate the indices to slice data
   const indexOfLastStarWarsCharacter = currentPage * itemsPerPage;
   const indexOfFirstStarWarsCharacter =
     indexOfLastStarWarsCharacter - itemsPerPage;
@@ -122,24 +136,14 @@ const CharacterTable = () => {
     indexOfLastStarWarsCharacter
   );
 
-  //? Event Handlers
-  const handleShowTableClick = () => {
-    setShowTable(true); // Show the table of characters
-  };
-
-  const handleHideTableClick = () => {
-    setShowTable(false); // Hide the table of characters
-  };
-
-  const handleSearchChange = (e) => {
+  // ? Event Handlers
+  const handleShowTableClick = () => setShowTable(true); // Show the table of characters
+  const handleHideTableClick = () => setShowTable(false); // Hide the table of characters
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setSearchTerm(e.target.value); // Update search term based on input field
-  };
+  const handleClearSearchBar = () => setSearchTerm(""); // Clear the search term
 
-  const handleClearSearchBar = () => {
-    setSearchTerm(""); // Clear the search term
-  };
-
-  const handleUpdateButtonClick = (character) => {
+  const handleUpdateButtonClick = (character: StarWarsCharacterData) => {
     setSelectedCharacter(character); // Set the selected character for updating
     setShowUpdateForm(true); // Show the update form modal
   };
@@ -150,20 +154,17 @@ const CharacterTable = () => {
   };
 
   // ? StarWarsCharacter modal handlers
-  const handleAddStarWarsCharacterFormOpen = () => {
+  const handleAddStarWarsCharacterFormOpen = () =>
     setShowAddStarWarsCharacterForm(true);
-  };
-
-  const handleAddStarWarsCharacterFormClose = () => {
+  const handleAddStarWarsCharacterFormClose = () =>
     setShowAddStarWarsCharacterForm(false);
+
+  const handleSort = (key: keyof StarWarsCharacterData) => {
+    const newDirection = sort.direction === "asc" ? "desc" : "asc"; // Toggle sorting direction
+    setSort({ keyToSort: key, direction: newDirection }); // Update sort state
   };
 
-  const handleSort = (key) => {
-    const direction = sort.direction === "asc" ? "desc" : "asc"; // Toggle sorting direction
-    setSort({ keyToSort: key, direction }); // Update sort state
-  };
-
-  //? Pagimation handlers
+  // ? Pagination handlers
   const handleNextPage = () => {
     setCurrentPage((prevPage) =>
       Math.min(
@@ -175,49 +176,24 @@ const CharacterTable = () => {
   const handlePreviousPage = () => {
     setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
   };
-  // const handlePageChange = () => {
-  //   setCurrentPage(pageNumber);
-  // };
 
-  // Use the useQuery hook to fetch data, skipping the query if showTable is false
-
-  // TODO: Sorting Capabilities(DONE)
-  // 1) handler function to "sort" the state whenever a column header is CLICKED.(DONE)
-  // 2) a function to sort the data based on the key(DONE)
-  // 3) implementing the data into the table(ONGOING)
-  // 3A) test the "asc" and "desc" handler function(DONE)
-  //  3B) implement the buttons into the headers on JSX(DONE)
-  // 3C) hook up the sortedStarWarsCharacters into the table(DONE)
-
-  // TODO: Pagimantion(ONGOING)
-  // 1)Establish pieces of state(DONE)
-  // 2)handler functions to operate the buttons to shift pages(DONE)
-  // 3)Calculate the Pagimated data for each page(DONE)
-  // 4)Render the Pagimation controls(DONE)
-
-  // Function to handle character deletion
-  const handleDeleteCharacter = async (character) => {
+  // ? Function to handle character deletion
+  const handleDeleteCharacter = async (character: StarWarsCharacterData) => {
     try {
-      await deleteStarWarsCharacter({
-        variables: { id: character.id },
-      });
+      await deleteStarWarsCharacter({ variables: { id: character.id } });
 
       // Update the Apollo Client cache
-      const cachedData = client.readQuery({
+      const cachedData = client.readQuery<QueryData>({
         query: GET_STAR_WARS_CHARACTERS,
       });
-
       if (!cachedData) return;
 
       const updatedCharacters = cachedData.allPeople.filter(
         (char) => char.id !== character.id
       );
-
       client.writeQuery({
         query: GET_STAR_WARS_CHARACTERS,
-        data: {
-          allPeople: updatedCharacters,
-        },
+        data: { allPeople: updatedCharacters },
       });
 
       toast.success("Character successfully deleted!"); // Show success toast
@@ -226,15 +202,6 @@ const CharacterTable = () => {
       toast.error("Failed to delete character."); // Show error toast
     }
   };
-
-  // //? Conditional Rendering if the page does NOT load
-  // if (charactersLoading) return <p>Loading...</p>; // Show loading indicator
-  // if (charactersError) {
-  //   console.error("Error loading characters:", charactersError);
-  //   return <p>Error: {charactersError.message}</p>; // Show error message
-  // }
-
-  //? prepare a user friendly error message
 
   return (
     <>
@@ -268,7 +235,7 @@ const CharacterTable = () => {
             />
           </Modal>
           <div className="pagination-controls">
-            <button onClick={handlePreviousPage} disabled={itemsPerPage === 1}>
+            <button onClick={handlePreviousPage} disabled={currentPage === 1}>
               Previous
             </button>
             <span>Page {currentPage}</span>
@@ -282,7 +249,6 @@ const CharacterTable = () => {
               Next
             </button>
           </div>
-
           {charactersLoading || charactersError ? (
             <IsLoadingError
               isLoading={charactersLoading}
@@ -298,17 +264,17 @@ const CharacterTable = () => {
                   <th onClick={() => handleSort("name")}>
                     Name{" "}
                     {sort.keyToSort === "name" &&
-                      (sort.direction === "asc" ? "▲(Asc) " : "▼(Desc) ")}
+                      (sort.direction === "asc" ? "▲(Asc)" : "▼(Desc)")}
                   </th>
                   <th onClick={() => handleSort("species")}>
-                    Species
+                    Species{" "}
                     {sort.keyToSort === "species" &&
-                      (sort.direction === "asc" ? "▲(Asc) " : "▼(Desc) ")}
+                      (sort.direction === "asc" ? "▲(Asc)" : "▼(Desc)")}
                   </th>
                   <th onClick={() => handleSort("homeworld")}>
-                    Homeworld
+                    Homeworld{" "}
                     {sort.keyToSort === "homeworld" &&
-                      (sort.direction === "asc" ? "▲(Asc) " : "▼(Desc) ")}
+                      (sort.direction === "asc" ? "▲(Asc)" : "▼(Desc)")}
                   </th>
                 </tr>
               </thead>
