@@ -1,7 +1,7 @@
 // TODO: Define the blueprint and schemas for SWAPI data
-// !1 Need to define mutations but what matters is displaying the mock data first and foremost(WORKING)
+import { gql } from "apollo-server";
 
-const { gql } = require("apollo-server");
+// !1 Need to define mutations but what matters is displaying the mock data first and foremost(WORKING)
 
 const typeDefs = gql`
   type Character {
@@ -27,4 +27,4 @@ const typeDefs = gql`
   }
 `;
 
-module.exports = typeDefs;
+export default typeDefs;

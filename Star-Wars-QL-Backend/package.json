@@ -2,9 +2,9 @@
   "name": "star-wars-ql-backend",
   "version": "1.0.0",
   "description": "A backend component to create a server to hold the SWAPI data for my front end",
-  "main": "index.js",
+  "main": "index.ts",
   "scripts": {
-    "start": "node index.js",
+    "start": "ts-node index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
